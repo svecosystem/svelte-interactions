@@ -1,4 +1,4 @@
-import { initPress, type PressConfig } from './press.js';
-import type { PressEvent } from './types/events.js';
+import { initPress, type PressConfig, type PressResult } from './press.js';
+import type { PressEvent, PointerType } from './types/events.js';
 
-export { initPress, type PressEvent, type PressConfig };
+export { initPress, type PressEvent, type PressConfig, type PressResult, type PointerType };

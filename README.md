@@ -52,7 +52,7 @@ Creates a new `press` interaction instance. Each element should have its own ins
 `initPress` takes in an optional `PressConfig` object, which can be used to customize the interaction.
 
 ```ts
-type PressConfig = PressEvents {
+type PressConfig = PressHandlers {
 	/**
 	 * Whether the target is in a controlled press state
 	 * (e.g. an overlay it triggers is open).
@@ -96,12 +96,12 @@ type PressConfig = PressEvents {
 };
 ```
 
-The `PressConfig` object also includes handlers for all the different `PressEvents`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:press*` events dispatched by the element with the `pressAction`.
+The `PressConfig` object also includes handlers for all the different `PressHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:press*` events dispatched by the element with the `pressAction`.
 
 Be aware that if you use these handlers, the custom `on:press*` events will still be dispatched, so be sure you aren't handling the same event twice.
 
 ```ts
-type PressEvents = {
+type PressHandlers = {
 	/**
 	 * Handler that is called when the press is released
 	 * over the target.

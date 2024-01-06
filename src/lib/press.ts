@@ -1,6 +1,6 @@
 import { disableTextSelection, restoreTextSelection } from './utils/text-selection.js';
 import type { FocusableElement } from './types/dom.js';
-import type { PressEvent as IPressEvent, PointerType, PressEvents } from './types/events.js';
+import type { PressEvent as IPressEvent, PointerType, PressHandlers } from './types/events.js';
 import { focusWithoutScrolling } from './utils/focus-without-scroll.js';
 import { getOwnerDocument, getOwnerWindow } from './utils/get-owner.js';
 import { isMac } from './utils/platform.js';
@@ -8,13 +8,13 @@ import { isVirtualClick, isVirtualPointerEvent } from './utils/is-virtual-event.
 import { openLink } from './utils/open-link.js';
 
 import { createGlobalListeners } from './utils/global-listeners.js';
-import { get, writable, type Writable } from 'svelte/store';
+import { get, writable, type Readable, readonly } from 'svelte/store';
 import { toWritableStores } from './utils/to-writable-stores.js';
 import { executeCallbacks, noop } from './utils/callbacks.js';
 import { addEventListener } from './utils/event-listeners.js';
 import type { ActionReturn } from 'svelte/action';
 
-export type PressConfig = PressEvents & {
+export type PressConfig = PressHandlers & {
 	/** Whether the target is in a controlled press state (e.g. an overlay it triggers is open). */
 	isPressed?: boolean;
 	/** Whether the press events should be disabled. */
@@ -67,7 +67,7 @@ type PressActionReturn = ActionReturn<
 
 export type PressResult = {
 	/** Whether the target is currently pressed. */
-	isPressed: Writable<boolean>;
+	isPressed: Readable<boolean>;
 	/** A Svelte Action which handles applying the event listeners to the element. */
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	pressAction: (node: HTMLElement | SVGElement) => PressActionReturn;
@@ -860,7 +860,7 @@ export function initPress(config?: PressConfig): PressResult {
 
 	return {
 		pressAction,
-		isPressed
+		isPressed: readonly(isPressed)
 	};
 }
 
@@ -916,21 +916,21 @@ function createEvent(target: FocusableElement, e: EventBase): EventBase {
 	};
 }
 
-interface Rect {
+type Rect = {
 	top: number;
 	right: number;
 	bottom: number;
 	left: number;
-}
+};
 
-interface EventPoint {
+type EventPoint = {
 	clientX: number;
 	clientY: number;
 	width?: number;
 	height?: number;
 	radiusX?: number;
 	radiusY?: number;
-}
+};
 
 function getPointClientRect(point: EventPoint): Rect {
 	let offsetX = 0;

@@ -1,4 +1,4 @@
-svelte-press-events
+svelte-interactions
 =================
 The following is a list of sources from which code was used/modified in this codebase.
 
