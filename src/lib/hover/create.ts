@@ -1,15 +1,11 @@
 // Portions of the code in this file are based on code from Adobe.
 // Original licensing for the following can be found in the NOTICE.txt
 // file in the root directory of this source tree.
-
 import { writable, type Readable, get } from 'svelte/store';
-import type { HoverEvent as IHoverEvent, HoverHandlers } from './types/events.js';
 import type { ActionReturn } from 'svelte/action';
-import { safeOnMount } from './utils/lifecycle.js';
-import { effect } from './utils/effect.js';
-import { isElement, isHTMLorSVGElement } from './utils/isElement.js';
-import { executeCallbacks, noop } from './utils/callbacks.js';
-import { addEventListener } from './utils/addEventListener.js';
+import type { HoverEvent as IHoverEvent, HoverHandlers } from './events.js';
+// prettier-ignore
+import { safeOnMount, effect, isElement, isHTMLorSVGElement, executeCallbacks, noop, addEventListener } from '$lib/utils/index.js';
 
 export type HoverConfig = HoverHandlers & {
 	/** Whether the hover events should be disabled */

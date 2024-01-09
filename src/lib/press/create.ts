@@ -1,23 +1,14 @@
 // Portions of the code in this file are based on code from Adobe.
 // Original licensing for the following can be found in the NOTICE.txt
 // file in the root directory of this source tree.
-
-import { disableTextSelection, restoreTextSelection } from './utils/textSelection.js';
-import type { FocusableElement } from './types/dom.js';
-import type { PressEvent as IPressEvent, PointerType, PressHandlers } from './types/events.js';
-import { focusWithoutScrolling } from './utils/focusWithoutScroll.js';
-import { getOwnerDocument, getOwnerWindow } from './utils/getOwner.js';
-import { isMac } from './utils/platform.js';
-import { isVirtualClick, isVirtualPointerEvent } from './utils/isVirtualEvent.js';
-import { openLink } from './utils/openLink.js';
-
-import { createGlobalListeners } from './utils/globalListeners.js';
 import { get, writable, type Readable, readonly } from 'svelte/store';
-import { toWritableStores } from './utils/toWritableStores.js';
-import { executeCallbacks, noop } from './utils/callbacks.js';
-import { addEventListener } from './utils/addEventListener.js';
 import type { ActionReturn } from 'svelte/action';
-import { isHTMLorSVGElement } from './utils/isElement.js';
+
+// prettier-ignore
+import { disableTextSelection, restoreTextSelection, focusWithoutScrolling, getOwnerDocument, getOwnerWindow, isMac, isVirtualClick, isVirtualPointerEvent, openLink, createGlobalListeners, toWritableStores, executeCallbacks, noop, addEventListener, isHTMLorSVGElement } from '$lib/utils/index.js';
+
+import type { PressEvent as IPressEvent, PointerType, PressHandlers } from './events.js';
+import type { FocusableElement } from '$lib/types/dom.js';
 
 export type PressConfig = PressHandlers & {
 	/** Whether the target is in a controlled press state (e.g. an overlay it triggers is open). */

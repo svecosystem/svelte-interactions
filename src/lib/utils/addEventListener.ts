@@ -1,11 +1,4 @@
-/**
- * A type alias for a general event listener function.
- *
- * @template E - The type of event to listen for
- * @param evt - The event object
- * @returns The return value of the event listener function
- */
-export type GeneralEventListener<E = Event> = (evt: E) => unknown;
+import type { GeneralEventListener } from '$lib/types/events.js';
 
 /**
  *  Overloaded function signatures for addEventListener

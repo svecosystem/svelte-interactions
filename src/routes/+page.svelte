@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { createHover } from '$lib/hover.js';
-	import { createPress } from '$lib/press.js';
+	import { createHover, createPress } from '$lib/index.js';
 
 	const { pressAction } = createPress();
 	const { hoverAction } = createHover();
