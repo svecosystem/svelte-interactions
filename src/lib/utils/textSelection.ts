@@ -1,6 +1,6 @@
 import { getOwnerDocument } from './getOwner.js';
 import { isIOS } from './platform.js';
-import { runAfterTransition } from './run-after-transition.js';
+import { runAfterTransition } from './runAfterTransition.js';
 
 // Safari on iOS starts selecting text on long press. The only way to avoid this, it seems,
 // is to add user-select: none to the entire page. Adding it to the pressable element prevents

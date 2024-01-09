@@ -74,10 +74,12 @@ function setupGlobalTouchEvents() {
 		return;
 	}
 
+	let unsubListener = noop;
+
 	if (typeof PointerEvent !== 'undefined') {
-		document.addEventListener('pointerup', handleGlobalPointerEvent);
+		unsubListener = addEventListener(document, 'pointerup', handleGlobalPointerEvent);
 	} else {
-		document.addEventListener('touchend', setGlobalIgnoreEmulatedMouseEvents);
+		unsubListener = addEventListener(document, 'touchend', setGlobalIgnoreEmulatedMouseEvents);
 	}
 
 	hoverCount++;
@@ -87,11 +89,7 @@ function setupGlobalTouchEvents() {
 			return;
 		}
 
-		if (typeof PointerEvent !== 'undefined') {
-			document.removeEventListener('pointerup', handleGlobalPointerEvent);
-		} else {
-			document.removeEventListener('touchend', setGlobalIgnoreEmulatedMouseEvents);
-		}
+		unsubListener();
 	};
 }
 
@@ -133,7 +131,7 @@ export function createHover(config?: HoverConfig): HoverResult {
 
 	safeOnMount(setupGlobalTouchEvents);
 
-	function dispatchEvent(hoverEvent: HoverEvent) {
+	function dispatchHoverEvent(hoverEvent: HoverEvent) {
 		nodeEl?.dispatchEvent(new CustomEvent<HoverEvent>(hoverEvent.type, { detail: hoverEvent }));
 	}
 
@@ -167,7 +165,8 @@ export function createHover(config?: HoverConfig): HoverResult {
 			target,
 			pointerType
 		});
-		dispatchEvent(event);
+
+		dispatchHoverEvent(event);
 
 		onHoverChange?.(true);
 
@@ -188,7 +187,7 @@ export function createHover(config?: HoverConfig): HoverResult {
 			target: currentTarget,
 			pointerType
 		});
-		dispatchEvent(event);
+		dispatchHoverEvent(event);
 
 		onHoverChange?.(false);
 

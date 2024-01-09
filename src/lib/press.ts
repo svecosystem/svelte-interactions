@@ -153,7 +153,7 @@ export function createPress(config?: PressConfig): PressResult {
 	// the element the action is attached to
 	let nodeEl: HTMLElement | SVGElement | null = null;
 
-	function dispatchEvent(pressEvent: PressEvent) {
+	function dispatchPressEvent(pressEvent: PressEvent) {
 		nodeEl?.dispatchEvent(new CustomEvent<PressEvent>(pressEvent.type, { detail: pressEvent }));
 	}
 
@@ -169,7 +169,7 @@ export function createPress(config?: PressConfig): PressResult {
 
 		const event = new PressEvent('pressstart', pointerType, originalEvent);
 		onPressStart?.(event);
-		dispatchEvent(event);
+		dispatchPressEvent(event);
 		shouldStopPropagation = event.shouldStopPropagation;
 
 		onPressChange?.(true);
@@ -200,7 +200,7 @@ export function createPress(config?: PressConfig): PressResult {
 
 		const event = new PressEvent('pressend', pointerType, originalEvent);
 		onPressEnd?.(event);
-		dispatchEvent(event);
+		dispatchPressEvent(event);
 		shouldStopPropagation = event.shouldStopPropagation;
 
 		onPressChange?.(false);
@@ -210,7 +210,7 @@ export function createPress(config?: PressConfig): PressResult {
 		if (wasPressed && !$isDisabled) {
 			const event = new PressEvent('press', pointerType, originalEvent);
 			onPress?.(event);
-			dispatchEvent(event);
+			dispatchPressEvent(event);
 			shouldStopPropagation &&= event.shouldStopPropagation;
 		}
 
@@ -230,7 +230,7 @@ export function createPress(config?: PressConfig): PressResult {
 		state.update((curr) => ({ ...curr, isTriggeringEvent: true }));
 		const event = new PressEvent('pressup', pointerType, originalEvent);
 		onPressUp?.(event);
-		dispatchEvent(event);
+		dispatchPressEvent(event);
 		state.update((curr) => ({ ...curr, isTriggeringEvent: false }));
 		return event.shouldStopPropagation;
 	}
