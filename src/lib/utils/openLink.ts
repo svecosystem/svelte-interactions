@@ -1,4 +1,4 @@
-import { focusWithoutScrolling } from './focus-without-scroll.js';
+import { focusWithoutScrolling } from './focusWithoutScroll.js';
 import { isFirefox, isIPad, isMac, isWebKit } from './platform.js';
 
 interface Modifiers {

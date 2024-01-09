@@ -1,8 +1,12 @@
 {
 	"name": "svelte-interactions",
 	"version": "0.0.1",
-	"repository": "github:huntabyte/vaul-svelte",
+	"repository": "github:huntabyte/svelte-interactions",
 	"license": "MIT",
+	"author": "Hunter Johnston <github@huntabyte.com>",
+	"funding": "https://github.com/sponsors/huntabyte",
+	"homepage": "https://github.com/huntabyte/svelte-interactions#readme",
+	"bugs": "https://github.com/huntabyte/svelte-interactions/issues",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run package",

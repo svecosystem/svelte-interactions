@@ -1,18 +1,14 @@
-import { disableTextSelection, restoreTextSelection } from './utils/text-selection.js';
-import type { FocusableElement } from './types/dom.js';
-import type { PressEvent as IPressEvent, PointerType, PressHandlers } from './types/events.js';
-import { focusWithoutScrolling } from './utils/focus-without-scroll.js';
-import { getOwnerDocument, getOwnerWindow } from './utils/get-owner.js';
-import { isMac } from './utils/platform.js';
-import { isVirtualClick, isVirtualPointerEvent } from './utils/is-virtual-event.js';
-import { openLink } from './utils/open-link.js';
-
-import { createGlobalListeners } from './utils/global-listeners.js';
+// Portions of the code in this file are based on code from Adobe.
+// Original licensing for the following can be found in the NOTICE.txt
+// file in the root directory of this source tree.
 import { get, writable, type Readable, readonly } from 'svelte/store';
-import { toWritableStores } from './utils/to-writable-stores.js';
-import { executeCallbacks, noop } from './utils/callbacks.js';
-import { addEventListener } from './utils/event-listeners.js';
 import type { ActionReturn } from 'svelte/action';
+
+// prettier-ignore
+import { disableTextSelection, restoreTextSelection, focusWithoutScrolling, getOwnerDocument, getOwnerWindow, isMac, isVirtualClick, isVirtualPointerEvent, openLink, createGlobalListeners, toWritableStores, executeCallbacks, noop, addEventListener, isHTMLorSVGElement } from '$lib/utils/index.js';
+
+import type { PressEvent as IPressEvent, PointerType, PressHandlers } from './events.js';
+import type { FocusableElement } from '$lib/types/dom.js';
 
 export type PressConfig = PressHandlers & {
 	/** Whether the target is in a controlled press state (e.g. an overlay it triggers is open). */
@@ -69,7 +65,6 @@ export type PressResult = {
 	/** Whether the target is currently pressed. */
 	isPressed: Readable<boolean>;
 	/** A Svelte Action which handles applying the event listeners to the element. */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	pressAction: (node: HTMLElement | SVGElement) => PressActionReturn;
 };
 
@@ -109,7 +104,7 @@ const LINK_CLICKED = Symbol('linkClicked');
  * It normalizes behavior across browsers and platforms, and handles many nuances
  * of dealing with pointer and keyboard events.
  */
-export function initPress(config?: PressConfig): PressResult {
+export function createPress(config?: PressConfig): PressResult {
 	const defaults = {
 		isPressed: false,
 		isDisabled: false,
@@ -131,7 +126,7 @@ export function initPress(config?: PressConfig): PressResult {
 
 	const isPressed = writable(false);
 
-	const pressState = writable<PressState>({
+	const state = writable<PressState>({
 		isPressed: false,
 		ignoreEmulatedMouseEvents: false,
 		ignoreClickAfterPress: false,
@@ -145,26 +140,31 @@ export function initPress(config?: PressConfig): PressResult {
 
 	const { addGlobalListener, removeAllGlobalListeners } = createGlobalListeners();
 
+	// the element the action is attached to
 	let nodeEl: HTMLElement | SVGElement | null = null;
 
+	function dispatchPressEvent(pressEvent: PressEvent) {
+		nodeEl?.dispatchEvent(new CustomEvent<PressEvent>(pressEvent.type, { detail: pressEvent }));
+	}
+
 	function triggerPressStart(originalEvent: EventBase, pointerType: PointerType) {
-		const $state = get(pressState);
+		const $state = get(state);
 		const $isDisabled = get(opts.isDisabled);
 
 		if ($isDisabled || $state.didFirePressStart) {
 			return false;
 		}
 		let shouldStopPropagation = true;
-		pressState.update((curr) => ({ ...curr, isTriggeringEvent: true }));
+		state.update((curr) => ({ ...curr, isTriggeringEvent: true }));
 
 		const event = new PressEvent('pressstart', pointerType, originalEvent);
 		onPressStart?.(event);
-		nodeEl?.dispatchEvent(new CustomEvent<PressEvent>('pressstart', { detail: event }));
+		dispatchPressEvent(event);
 		shouldStopPropagation = event.shouldStopPropagation;
 
 		onPressChange?.(true);
 
-		pressState.update((curr) => ({
+		state.update((curr) => ({
 			...curr,
 			isTriggeringEvent: false,
 			didFirePressStart: true
@@ -174,12 +174,12 @@ export function initPress(config?: PressConfig): PressResult {
 	}
 
 	function triggerPressEnd(originalEvent: EventBase, pointerType: PointerType, wasPressed = true) {
-		const $state = get(pressState);
+		const $state = get(state);
 		if (!$state.didFirePressStart) {
 			return false;
 		}
 
-		pressState.update((curr) => ({
+		state.update((curr) => ({
 			...curr,
 			ignoreClickAfterPress: true,
 			didFirePressStart: false,
@@ -190,7 +190,7 @@ export function initPress(config?: PressConfig): PressResult {
 
 		const event = new PressEvent('pressend', pointerType, originalEvent);
 		onPressEnd?.(event);
-		nodeEl?.dispatchEvent(new CustomEvent<PressEvent>('pressend', { detail: event }));
+		dispatchPressEvent(event);
 		shouldStopPropagation = event.shouldStopPropagation;
 
 		onPressChange?.(false);
@@ -200,11 +200,11 @@ export function initPress(config?: PressConfig): PressResult {
 		if (wasPressed && !$isDisabled) {
 			const event = new PressEvent('press', pointerType, originalEvent);
 			onPress?.(event);
-			nodeEl?.dispatchEvent(new CustomEvent<PressEvent>('press', { detail: event }));
+			dispatchPressEvent(event);
 			shouldStopPropagation &&= event.shouldStopPropagation;
 		}
 
-		pressState.update((curr) => ({
+		state.update((curr) => ({
 			...curr,
 			isTriggeringEvent: false
 		}));
@@ -217,21 +217,21 @@ export function initPress(config?: PressConfig): PressResult {
 			return false;
 		}
 
-		pressState.update((curr) => ({ ...curr, isTriggeringEvent: true }));
+		state.update((curr) => ({ ...curr, isTriggeringEvent: true }));
 		const event = new PressEvent('pressup', pointerType, originalEvent);
 		onPressUp?.(event);
-		nodeEl?.dispatchEvent(new CustomEvent<PressEvent>('pressup', { detail: event }));
-		pressState.update((curr) => ({ ...curr, isTriggeringEvent: false }));
+		dispatchPressEvent(event);
+		state.update((curr) => ({ ...curr, isTriggeringEvent: false }));
 		return event.shouldStopPropagation;
 	}
 
 	function cancel(e: EventBase) {
-		const $state = get(pressState);
+		const $state = get(state);
 		if ($state.isPressed && $state.target) {
 			if ($state.isOverTarget && $state.pointerType != null) {
 				triggerPressEnd(createEvent($state.target, e), $state.pointerType, false);
 			}
-			pressState.update((curr) => ({
+			state.update((curr) => ({
 				...curr,
 				isPressed: false,
 				isOverTarget: false,
@@ -252,7 +252,7 @@ export function initPress(config?: PressConfig): PressResult {
 	}
 
 	function onKeyUp(e: KeyboardEvent) {
-		const $state = get(pressState);
+		const $state = get(state);
 		if ($state.isPressed && $state.target && isValidKeyboardEvent(e, $state.target)) {
 			if (shouldPreventDefaultKeyboard(e.target as Element, e.key)) {
 				e.preventDefault();
@@ -287,7 +287,7 @@ export function initPress(config?: PressConfig): PressResult {
 				openLink($state.target, e, false);
 			}
 			$state.metaKeyEvents?.delete(e.key);
-			pressState.update((curr) => ({
+			state.update((curr) => ({
 				...curr,
 				isPressed: false,
 				metaKeyEvents: $state.metaKeyEvents
@@ -297,7 +297,7 @@ export function initPress(config?: PressConfig): PressResult {
 			// and those haven't received keyup events already, fire keyup events ourselves.
 			// See comment above for more info about the macOS bug causing this.
 			const events = $state.metaKeyEvents;
-			pressState.update((curr) => ({ ...curr, metaKeyEvents: undefined }));
+			state.update((curr) => ({ ...curr, metaKeyEvents: undefined }));
 			for (const event of events.values()) {
 				$state.target?.dispatchEvent(new KeyboardEvent('keyup', event));
 			}
@@ -313,14 +313,14 @@ export function initPress(config?: PressConfig): PressResult {
 					if (shouldPreventDefaultKeyboard(e.target as Element, e.key)) {
 						e.preventDefault();
 					}
-					const $state = get(pressState);
+					const $state = get(state);
 
 					// If the event is repeating, it may have started on a different element
 					// after which focus moved to the current element. Ignore these events and
 					// only handle the first key down event.
 					let shouldStopPropagation = true;
 					if (!$state.isPressed && !e.repeat) {
-						pressState.update((curr) => ({ ...curr, target: currentTarget, isPressed: true }));
+						state.update((curr) => ({ ...curr, target: currentTarget, isPressed: true }));
 						shouldStopPropagation = triggerPressStart(e, 'keyboard');
 
 						// Focus may move before the key up event, so register the event on the document
@@ -341,16 +341,16 @@ export function initPress(config?: PressConfig): PressResult {
 					// https://bugzilla.mozilla.org/show_bug.cgi?id=1299553
 					if (e.metaKey && isMac()) {
 						$state.metaKeyEvents?.set(e.key, e);
-						pressState.update((curr) => ({ ...curr, metaKeyEvents: $state.metaKeyEvents }));
+						state.update((curr) => ({ ...curr, metaKeyEvents: $state.metaKeyEvents }));
 					}
 				} else if (e.key === 'Meta') {
-					pressState.update((curr) => ({ ...curr, metaKeyEvents: new Map() }));
+					state.update((curr) => ({ ...curr, metaKeyEvents: new Map() }));
 				}
 			},
 			onKeyUp: (e: KeyboardEvent) => {
 				const currentTarget = e.currentTarget;
 				if (!isHTMLorSVGElement(currentTarget)) return;
-				const $state = get(pressState);
+				const $state = get(state);
 				if (
 					isValidKeyboardEvent(e, currentTarget) &&
 					!e.repeat &&
@@ -361,7 +361,7 @@ export function initPress(config?: PressConfig): PressResult {
 				}
 			},
 			onClick: (e: MouseEvent) => {
-				const $state = get(pressState);
+				const $state = get(state);
 				const currentTarget = e.currentTarget;
 				if (!isHTMLorSVGElement(currentTarget)) return;
 				if (!currentTarget.contains(e.target as Element)) return;
@@ -393,7 +393,7 @@ export function initPress(config?: PressConfig): PressResult {
 						shouldStopPropagation = stopPressStart && stopPressUp && stopPressEnd;
 					}
 
-					pressState.update((curr) => ({
+					state.update((curr) => ({
 						...curr,
 						ignoreEmulatedMouseEvents: false,
 						ignoreClickAfterPress: false
@@ -409,7 +409,7 @@ export function initPress(config?: PressConfig): PressResult {
 
 	function getPointerHandlers() {
 		function onPointerUp(e: PointerEvent) {
-			const $state = get(pressState);
+			const $state = get(state);
 			if (
 				e.pointerId === $state.activePointerId &&
 				$state.isPressed &&
@@ -422,7 +422,7 @@ export function initPress(config?: PressConfig): PressResult {
 					triggerPressEnd(createEvent($state.target, e), $state.pointerType, false);
 				}
 
-				pressState.update((curr) => ({
+				state.update((curr) => ({
 					...curr,
 					isPressed: false,
 					isOverTarget: false,
@@ -440,18 +440,18 @@ export function initPress(config?: PressConfig): PressResult {
 		// Use pointer move events instead to implement our own hit testing.
 		// See https://bugs.webkit.org/show_bug.cgi?id=199803
 		function onPointerMove(e: PointerEvent) {
-			const $state = get(pressState);
+			const $state = get(state);
 			if (e.pointerId !== $state.activePointerId) {
 				return;
 			}
 
 			if ($state.target && isOverTarget(e, $state.target)) {
 				if (!$state.isOverTarget && $state.pointerType != null) {
-					pressState.update((curr) => ({ ...curr, isOverTarget: true }));
+					state.update((curr) => ({ ...curr, isOverTarget: true }));
 					triggerPressStart(createEvent($state.target, e), $state.pointerType);
 				}
 			} else if ($state.target && $state.isOverTarget && $state.pointerType != null) {
-				pressState.update((curr) => ({ ...curr, isOverTarget: false }));
+				state.update((curr) => ({ ...curr, isOverTarget: false }));
 				triggerPressEnd(createEvent($state.target, e), $state.pointerType, false);
 				cancelOnPointerExit(e);
 			}
@@ -466,23 +466,23 @@ export function initPress(config?: PressConfig): PressResult {
 				const currentTarget = e.currentTarget;
 				if (!isHTMLorSVGElement(currentTarget)) return;
 				if (e.button !== 0 || !currentTarget.contains(e.target as HTMLElement)) return;
-				const $state = get(pressState);
+				const $state = get(state);
 
 				// iOS safari fires pointer events from VoiceOver with incorrect coordinates/target.
 				// Ignore and let the onClick handler take care of it instead.
 				// https://bugs.webkit.org/show_bug.cgi?id=222627
 				// https://bugs.webkit.org/show_bug.cgi?id=223202
 				if (isVirtualPointerEvent(e)) {
-					pressState.update((curr) => ({ ...curr, pointerType: 'virtual' }));
+					state.update((curr) => ({ ...curr, pointerType: 'virtual' }));
 					return;
 				}
 
-				pressState.update((curr) => ({ ...curr, pointerType: e.pointerType as PointerType }));
+				state.update((curr) => ({ ...curr, pointerType: e.pointerType as PointerType }));
 
 				let shouldStopPropagation = true;
 
 				if (!$state.isPressed) {
-					pressState.update((curr) => ({
+					state.update((curr) => ({
 						...curr,
 						isPressed: true,
 						isOverTarget: true,
@@ -535,7 +535,7 @@ export function initPress(config?: PressConfig): PressResult {
 			onPointerUp: (e: PointerEvent) => {
 				const currentTarget = e.currentTarget;
 				if (!isHTMLorSVGElement(currentTarget)) return;
-				const $state = get(pressState);
+				const $state = get(state);
 				if (!currentTarget.contains(e.target as HTMLElement) || $state.pointerType === 'virtual')
 					return;
 
@@ -555,13 +555,13 @@ export function initPress(config?: PressConfig): PressResult {
 			if (e.button !== 0) {
 				return;
 			}
-			const $state = get(pressState);
+			const $state = get(state);
 
-			pressState.update((curr) => ({ ...curr, isPressed: false }));
+			state.update((curr) => ({ ...curr, isPressed: false }));
 			removeAllGlobalListeners();
 
 			if ($state.ignoreEmulatedMouseEvents) {
-				pressState.update((curr) => ({ ...curr, ignoreEmulatedMouseEvents: false }));
+				state.update((curr) => ({ ...curr, ignoreEmulatedMouseEvents: false }));
 				return;
 			}
 
@@ -571,11 +571,11 @@ export function initPress(config?: PressConfig): PressResult {
 				triggerPressEnd(createEvent($state.target, e), $state.pointerType, false);
 			}
 
-			pressState.update((curr) => ({ ...curr, isOverTarget: false }));
+			state.update((curr) => ({ ...curr, isOverTarget: false }));
 		}
 
 		function onScroll(e: Event) {
-			const $state = get(pressState);
+			const $state = get(state);
 			if ($state.isPressed && (e.target as Element).contains($state.target)) {
 				cancel({
 					currentTarget: $state.target,
@@ -590,7 +590,7 @@ export function initPress(config?: PressConfig): PressResult {
 		return {
 			onMouseDown: (e: MouseEvent) => {
 				const currentTarget = e.currentTarget;
-				const $state = get(pressState);
+				const $state = get(state);
 				if (!isHTMLorSVGElement(currentTarget)) return;
 				// Only handle left clicks
 				if (e.button !== 0 || !currentTarget.contains(e.target as Element)) {
@@ -609,7 +609,7 @@ export function initPress(config?: PressConfig): PressResult {
 				}
 
 				$state.pointerType = isVirtualClick(e) ? 'virtual' : 'mouse';
-				pressState.update((curr) => ({
+				state.update((curr) => ({
 					...curr,
 					isPressed: true,
 					isOverTarget: true,
@@ -634,11 +634,11 @@ export function initPress(config?: PressConfig): PressResult {
 				if (!currentTarget.contains(e.target as Element)) {
 					return;
 				}
-				const $state = get(pressState);
+				const $state = get(state);
 
 				let shouldStopPropagation = true;
 				if ($state.isPressed && !$state.ignoreEmulatedMouseEvents && $state.pointerType != null) {
-					pressState.update((curr) => ({ ...curr, isOverTarget: true }));
+					state.update((curr) => ({ ...curr, isOverTarget: true }));
 					shouldStopPropagation = triggerPressStart(e, $state.pointerType);
 				}
 
@@ -654,9 +654,9 @@ export function initPress(config?: PressConfig): PressResult {
 				}
 
 				let shouldStopPropagation = true;
-				const $state = get(pressState);
+				const $state = get(state);
 				if ($state.isPressed && !$state.ignoreEmulatedMouseEvents && $state.pointerType != null) {
-					pressState.update((curr) => ({ ...curr, isOverTarget: false }));
+					state.update((curr) => ({ ...curr, isOverTarget: false }));
 					shouldStopPropagation = triggerPressEnd(e, $state.pointerType, false);
 					cancelOnPointerExit(e);
 				}
@@ -671,7 +671,7 @@ export function initPress(config?: PressConfig): PressResult {
 				if (!currentTarget.contains(e.target as Element)) {
 					return;
 				}
-				const $state = get(pressState);
+				const $state = get(state);
 				if (!$state.ignoreEmulatedMouseEvents && e.button === 0) {
 					triggerPressUp(e, $state.pointerType || 'mouse');
 				}
@@ -686,7 +686,7 @@ export function initPress(config?: PressConfig): PressResult {
 				const touch = getTouchFromEvent(e);
 				if (!touch) return;
 
-				pressState.update((curr) => ({
+				state.update((curr) => ({
 					...curr,
 					activePointerId: touch.identifier,
 					ignoreEmulatedMouseEvents: true,
@@ -701,7 +701,7 @@ export function initPress(config?: PressConfig): PressResult {
 				if (!get(opts.isDisabled) && !get(opts.preventFocusOnPress)) {
 					focusWithoutScrolling(currentTarget);
 				}
-				const $state = get(pressState);
+				const $state = get(state);
 
 				if (!get(opts.allowTextSelectionOnPress)) {
 					disableTextSelection($state.target as HTMLElement);
@@ -720,7 +720,7 @@ export function initPress(config?: PressConfig): PressResult {
 				if (!currentTarget.contains(e.target as Element)) {
 					return;
 				}
-				const $state = get(pressState);
+				const $state = get(state);
 
 				if (!$state.isPressed) {
 					e.stopPropagation();
@@ -732,11 +732,11 @@ export function initPress(config?: PressConfig): PressResult {
 
 				if (touch && isOverTarget(touch, currentTarget)) {
 					if (!$state.isOverTarget && $state.pointerType != null) {
-						pressState.update((curr) => ({ ...curr, isOverTarget: true }));
+						state.update((curr) => ({ ...curr, isOverTarget: true }));
 						shouldStopPropagation = triggerPressStart(e, $state.pointerType);
 					}
 				} else if ($state.isOverTarget && $state.pointerType != null) {
-					pressState.update((curr) => ({ ...curr, isOverTarget: false }));
+					state.update((curr) => ({ ...curr, isOverTarget: false }));
 					shouldStopPropagation = triggerPressEnd(e, $state.pointerType, false);
 					cancelOnPointerExit(e);
 				}
@@ -751,7 +751,7 @@ export function initPress(config?: PressConfig): PressResult {
 				if (!currentTarget.contains(e.target as Element)) {
 					return;
 				}
-				const $state = get(pressState);
+				const $state = get(state);
 
 				if (!$state.isPressed) {
 					e.stopPropagation();
@@ -771,7 +771,7 @@ export function initPress(config?: PressConfig): PressResult {
 					e.stopPropagation();
 				}
 
-				pressState.update((curr) => ({
+				state.update((curr) => ({
 					...curr,
 					isPressed: false,
 					activePointerId: null,
@@ -792,7 +792,7 @@ export function initPress(config?: PressConfig): PressResult {
 				}
 
 				e.stopPropagation();
-				const $state = get(pressState);
+				const $state = get(state);
 				if ($state.isPressed) {
 					cancel(e);
 				}
@@ -847,7 +847,7 @@ export function initPress(config?: PressConfig): PressResult {
 			destroy() {
 				// Remove user-select: none in case destroy immediately after pressStart
 				if (!get(opts.allowTextSelectionOnPress)) {
-					const target = get(pressState).target;
+					const target = get(state).target;
 					if (target) {
 						restoreTextSelection(target);
 					}
@@ -1010,8 +1010,4 @@ function isValidInputKey(target: HTMLInputElement, key: string) {
 	return target.type === 'checkbox' || target.type === 'radio'
 		? key === ' '
 		: nonTextInputTypes.has(target.type);
-}
-
-function isHTMLorSVGElement(el: unknown): el is HTMLElement | SVGElement {
-	return el instanceof HTMLElement || el instanceof SVGElement;
 }

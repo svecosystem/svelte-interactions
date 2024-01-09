@@ -4,7 +4,15 @@ At surface level, interactions may seem like a simple concept, but once you star
 
 If you aren't convinced, it's highly recommended to read [this three-part blog post](https://react-spectrum.adobe.com/blog/building-a-button-part-1.html), which goes into detail about the complexities of interactions.
 
-This project is heavily inspired by that article and contains code derived from [React Aria's](https://react-spectrum.adobe.com) Interactions packages. It aims to provide a similar API for Svelte, in the form of [Svelte Actions](https://svelte.dev/docs/svelte-action) and eventually spreadable event attributes (once Svelte 5 is released).
+This project is heavily inspired by that article and contains a ton of code derived from [React Aria's](https://react-spectrum.adobe.com) Interactions packages. It aims to provide a similar API for Svelte, in the form of [Svelte Actions](https://svelte.dev/docs/svelte-action) and eventually spreadable event attributes (once Svelte 5 is released).
+
+While this project is still in its infancy, it'll be documented here. It will eventually get a dedicated website, but for now this will have to do.
+
+## Installation
+
+```bash
+npm install svelte-interactions
+```
 
 ## Press Interaction
 
@@ -16,9 +24,9 @@ No more having to wrangle all those event handlers yourself! Just and use the `p
 
 ```svelte
 <script lang="ts">
-	import { initPress } from 'svelte-interactions';
+	import { createPress } from 'svelte-interactions';
 
-	const { pressAction } = initPress();
+	const { pressAction } = createPress();
 </script>
 
 <button
@@ -31,16 +39,16 @@ No more having to wrangle all those event handlers yourself! Just and use the `p
 </button>
 ```
 
-### initPress
+### createPress
 
 Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
 
 ```svelte
 <script lang="ts">
-	import { initPress } from 'svelte-interactions';
+	import { createPress } from 'svelte-interactions';
 
-	const { pressAction: pressOne } = initPress();
-	const { pressAction: pressTwo } = initPress();
+	const { pressAction: pressOne } = createPress();
+	const { pressAction: pressTwo } = createPress();
 </script>
 
 <button use:pressOne on:press> Button One </button>
@@ -49,7 +57,13 @@ Creates a new `press` interaction instance. Each element should have its own ins
 
 #### PressConfig
 
-`initPress` takes in an optional `PressConfig` object, which can be used to customize the interaction.
+`createPress` takes in an optional `PressConfig` object, which can be used to customize the interaction.
+
+```ts
+import { createPress } from 'svelte-interactions';
+
+const { pressAction } = createPress({ isDisabled: true });
+```
 
 ```ts
 type PressConfig = PressHandlers {
@@ -98,77 +112,93 @@ type PressConfig = PressHandlers {
 
 The `PressConfig` object also includes handlers for all the different `PressHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:press*` events dispatched by the element with the `pressAction`.
 
-Be aware that if you use these handlers, the custom `on:press*` events will still be dispatched, so be sure you aren't handling the same event twice.
+Be aware that event if you use these handlers, the custom `on:press*` events will still be dispatched, so be sure you aren't handling the same event twice.
 
 ```ts
 type PressHandlers = {
 	/**
-	 * Handler that is called when the press is released
-	 * over the target.
+	 * Handler called when the press is released over the target.
 	 */
 	onPress?: (e: PressEvent) => void;
 
 	/**
-	 * Handler that is called when a press interaction starts.
+	 * Handler called when a press interaction starts.
 	 */
 	onPressStart?: (e: PressEvent) => void;
 
 	/**
-	 * Handler that is called when a press interaction ends,
-	 * either over the target or when the pointer leaves the target.
+	 * Handler called when a press interaction ends, either over
+	 * the target or when the pointer leaves the target.
 	 */
 	onPressEnd?: (e: PressEvent) => void;
 
 	/**
-	 * Handler that is called when the press state changes.
+	 * Handler called when the press state changes.
 	 */
 	onPressChange?: (isPressed: boolean) => void;
 
 	/**
-	 * Handler that is called when a press is released over the
-	 * target, regardless of whether it started on the target or
-	 * not.
+	 * Handler called when a press is released over the target,
+	 * regardless of whether it started on the target or not.
 	 */
 	onPressUp?: (e: PressEvent) => void;
 };
 ```
 
-### Custom Events
+### PressResult
 
-When you apply the `pressAction` to an element, it will dispatch custom `on:press*` events. You can use either these or the `PressEvents` handlers provided by `initPress` to handle the different press events.
+The `createPress` function returns a `PressResult` object, which contains the `pressAction` action, and the `isPressed` state. More returned properties may be added in the future if needed.
 
 ```ts
-type CustomEvents = {
-	/**
-	 * Event dispatched when the press is released over the target.
-	 */
-	'on:press'?: (e: CustomEvent<PressEvent>) => void;
-
-	/**
-	 * Event dispatched when a press interaction starts.
-	 */
-	'on:pressstart'?: (e: CustomEvent<PressEvent>) => void;
-
-	/**
-	 * Event dispatched when a press interaction ends,
-	 * either over the target or when the pointer leaves the target.
-	 */
-	'on:pressend'?: (e: CustomEvent<PressEvent>) => void;
-
-	/**
-	 * Event dispatched when a press is released over the target,
-	 * regardless of whether it started on the target or not.
-	 */
-	'on:pressup'?: (e: CustomEvent<PressEvent>) => void;
+type PressResult = {
+	/** Whether the target is currently pressed. */
+	isPressed: Readable<boolean>;
+	/** A Svelte Action which handles applying the event listeners to the element. */
+	pressAction: (node: HTMLElement | SVGElement) => PressActionReturn;
 };
+```
+
+### Custom Events
+
+When you apply the `pressAction` to an element, it will dispatch custom `on:press*` events. You can use these and/or the `PressHandlers` to handle the various press events.
+
+```ts
+type PressActionReturn = ActionReturn<
+	undefined,
+	{
+		/**
+		 * Dispatched when the press is released over the target.
+		 */
+		'on:press'?: (e: CustomEvent<PressEvent>) => void;
+
+		/**
+		 * Dispatched when a press interaction starts.
+		 */
+		'on:pressstart'?: (e: CustomEvent<PressEvent>) => void;
+
+		/**
+		 * Dispatched when a press interaction ends, either over
+		 * the target or when the pointer leaves the target.
+		 */
+		'on:pressend'?: (e: CustomEvent<PressEvent>) => void;
+
+		/**
+		 * Dispatched when a press is released over the target,
+		 * regardless of whether it started on the target or not.
+		 */
+		'on:pressup'?: (e: CustomEvent<PressEvent>) => void;
+	}
+>;
 ```
 
 #### PressEvent
 
+This is the event object dispatched by the custom `on:press*` events, and is also passed to the `PressHandlers` should you choose to use them.
+
 ```ts
 type PointerType = 'mouse' | 'pen' | 'touch' | 'keyboard' | 'virtual';
 
-export interface PressEvent {
+interface PressEvent {
 	/** The type of press event being fired. */
 	type: 'pressstart' | 'pressend' | 'pressup' | 'press';
 
@@ -196,5 +226,144 @@ export interface PressEvent {
 	 * it can call `continuePropagation()` to allow a parent to handle it.
 	 */
 	continuePropagation(): void;
+}
+```
+
+## Hover Interaction
+
+The `hover` interaction provides an API for consistent hover behavior across all browsers and devices, ignoring emulated mouse events on touch devices.
+
+#### Basic Usage
+
+```svelte
+<script lang="ts">
+	import { createHover } from 'svelte-interactions';
+
+	const { hoverAction } = createHover();
+</script>
+
+<button
+	use:hoverAction
+	on:hoverstart={(e) => {
+		console.log('you just hovered me!', e);
+	}}
+	on:hoverstart={(e) => {
+		console.log('you just unhovered me!', e);
+	}}
+>
+	Press Me
+</button>
+```
+
+### createHover
+
+Creates a new `hover` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple elements you wanted to apply hover state to on a page:
+
+```svelte
+<script lang="ts">
+	import { createPress } from 'svelte-interactions';
+
+	const { hoverAction: hoverOne } = createHover();
+	const { hoverAction: hoverTwo } = createHover();
+</script>
+
+<div use:hoverOne on:hoverstart>Hoverable element one</div>
+<div use:hoverTwo on:hoverstart>Hoverable element two</div>
+```
+
+#### HoverConfig
+
+The `createHover` function takes in an optional `HoverConfig` object, which can be used to customize the interaction.
+
+```ts
+import { createHover } from 'svelte-interactions';
+
+const { hoverAction } = createHover({ isDisabled: true });
+```
+
+```ts
+type HoverConfig = HoverHandlers & {
+	/**
+	 * Whether the hover events should be disabled
+	 */
+	isDisabled?: boolean;
+};
+```
+
+The `HoverConfig` object also includes handlers for all the different `HoverHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:hover*` events dispatched by the element with the `hoverAction`.
+
+Be aware that even if you use these handlers, the custom `on:hover*` events will still be dispatched, so be sure you aren't handling the same event twice.
+
+```ts
+type HoverHandlers = {
+	/**
+	 * Handler called when a hover interaction starts.
+	 */
+	onHoverStart?: (e: HoverEvent) => void;
+
+	/**
+	 * Handler called when a hover interaction ends.
+	 */
+	onHoverEnd?: (e: HoverEvent) => void;
+
+	/**
+	 * Handler called when the hover state changes.
+	 */
+	onHoverChange?: (isHovering: boolean) => void;
+};
+```
+
+### HoverResult
+
+The `createHover` function returns a `HoverResult` object, which contains the `hoverAction` action, and the `isHovering` state. More returned properties may be added in the future if needed.
+
+```ts
+export type HoverResult = {
+	/**
+	 * Whether the element is currently being hovered
+	 */
+	isHovered: Readable<boolean>;
+
+	/**
+	 * A Svelte action which handles applying the event listeners
+	 * to the element and dispatching the custom `on:hover*` events.
+	 */
+	hoverAction: (node: HTMLElement | SVGElement) => HoverActionReturn;
+};
+```
+
+### Custom Events
+
+When you apply the `hoverAction` to an element, it will dispatch custom `on:hover*` events. You can use these and/or the `HoverHandlers` to handle the various hover events.
+
+```ts
+type HoverActionReturn = ActionReturn<
+	undefined,
+	{
+		/**
+		 * Dispatched when a hover interaction starts.
+		 */
+		'on:hoverstart'?: (e: CustomEvent<HoverEvent>) => void;
+
+		/**
+		 * Dispatched when a hover interaction ends.
+		 */
+		'on:hoverend'?: (e: CustomEvent<HoverEvent>) => void;
+	}
+>;
+```
+
+#### HoverEvent
+
+This is the event object dispatched by the custom `on:hover*` events, and is also passed to the `HoverHandlers` should you choose to use them.
+
+```ts
+interface HoverEvent {
+	/** The type of hover event being fired. */
+	type: 'hoverstart' | 'hoverend';
+	/** The pointer type that triggered the hover event. */
+	pointerType: 'mouse' | 'pen';
+	/** The target element of the hover event. */
+	target: Element;
 }
 ```
