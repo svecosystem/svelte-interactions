@@ -7,8 +7,8 @@ import type { ActionReturn } from 'svelte/action';
 // prettier-ignore
 import { disableTextSelection, restoreTextSelection, focusWithoutScrolling, getOwnerDocument, getOwnerWindow, isMac, isVirtualClick, isVirtualPointerEvent, openLink, createGlobalListeners, toWritableStores, executeCallbacks, noop, addEventListener, isHTMLorSVGElement } from '$lib/utils/index.js';
 
-import type { PressEvent as IPressEvent, PointerType, PressHandlers } from './events.js';
-import type { FocusableElement } from '$lib/types/dom.js';
+import type { PressEvent as IPressEvent, PressHandlers } from './events.js';
+import type { FocusableElement, EventBase, PointerType } from '$lib/types/index.js';
 
 export type PressConfig = PressHandlers & {
 	/** Whether the target is in a controlled press state (e.g. an overlay it triggers is open). */
@@ -41,14 +41,6 @@ type PressState = {
 	pointerType: PointerType | null;
 	userSelect?: string;
 	metaKeyEvents?: Map<string, KeyboardEvent>;
-};
-
-type EventBase = {
-	currentTarget: EventTarget | null;
-	shiftKey: boolean;
-	ctrlKey: boolean;
-	metaKey: boolean;
-	altKey: boolean;
 };
 
 type PressActionReturn = ActionReturn<

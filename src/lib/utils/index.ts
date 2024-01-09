@@ -13,3 +13,5 @@ export * from './platform.js';
 export * from './runAfterTransition.js';
 export * from './textSelection.js';
 export * from './toWritableStores.js';
+export * from './description.js';
+export * from './browser.js';
