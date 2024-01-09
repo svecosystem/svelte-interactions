@@ -1,18 +1,23 @@
-import { disableTextSelection, restoreTextSelection } from './utils/text-selection.js';
+// Portions of the code in this file are based on code from Adobe.
+// Original licensing for the following can be found in the NOTICE.txt
+// file in the root directory of this source tree.
+
+import { disableTextSelection, restoreTextSelection } from './utils/textSelection.js';
 import type { FocusableElement } from './types/dom.js';
 import type { PressEvent as IPressEvent, PointerType, PressHandlers } from './types/events.js';
-import { focusWithoutScrolling } from './utils/focus-without-scroll.js';
-import { getOwnerDocument, getOwnerWindow } from './utils/get-owner.js';
+import { focusWithoutScrolling } from './utils/focusWithoutScroll.js';
+import { getOwnerDocument, getOwnerWindow } from './utils/getOwner.js';
 import { isMac } from './utils/platform.js';
-import { isVirtualClick, isVirtualPointerEvent } from './utils/is-virtual-event.js';
-import { openLink } from './utils/open-link.js';
+import { isVirtualClick, isVirtualPointerEvent } from './utils/isVirtualEvent.js';
+import { openLink } from './utils/openLink.js';
 
-import { createGlobalListeners } from './utils/global-listeners.js';
+import { createGlobalListeners } from './utils/globalListeners.js';
 import { get, writable, type Readable, readonly } from 'svelte/store';
-import { toWritableStores } from './utils/to-writable-stores.js';
+import { toWritableStores } from './utils/toWritableStores.js';
 import { executeCallbacks, noop } from './utils/callbacks.js';
-import { addEventListener } from './utils/event-listeners.js';
+import { addEventListener } from './utils/addEventListener.js';
 import type { ActionReturn } from 'svelte/action';
+import { isHTMLorSVGElement } from './utils/isElement.js';
 
 export type PressConfig = PressHandlers & {
 	/** Whether the target is in a controlled press state (e.g. an overlay it triggers is open). */
@@ -109,7 +114,7 @@ const LINK_CLICKED = Symbol('linkClicked');
  * It normalizes behavior across browsers and platforms, and handles many nuances
  * of dealing with pointer and keyboard events.
  */
-export function initPress(config?: PressConfig): PressResult {
+export function createPress(config?: PressConfig): PressResult {
 	const defaults = {
 		isPressed: false,
 		isDisabled: false,
@@ -1010,8 +1015,4 @@ function isValidInputKey(target: HTMLInputElement, key: string) {
 	return target.type === 'checkbox' || target.type === 'radio'
 		? key === ' '
 		: nonTextInputTypes.has(target.type);
-}
-
-function isHTMLorSVGElement(el: unknown): el is HTMLElement | SVGElement {
-	return el instanceof HTMLElement || el instanceof SVGElement;
 }

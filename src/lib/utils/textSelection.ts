@@ -1,4 +1,4 @@
-import { getOwnerDocument } from './get-owner.js';
+import { getOwnerDocument } from './getOwner.js';
 import { isIOS } from './platform.js';
 import { runAfterTransition } from './run-after-transition.js';
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { initPress } from '$lib/press.js';
+	import { createPress } from '$lib/press.js';
 
-	const { pressAction } = initPress();
+	const { pressAction } = createPress();
 </script>
 
 <button
