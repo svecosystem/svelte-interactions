@@ -3,7 +3,7 @@
 // file in the root directory of this source tree.
 
 import { writable, type Readable, get } from 'svelte/store';
-import type { HoverEvent, HoverEvents } from './types/events.js';
+import type { HoverEvent as IHoverEvent, HoverEvents } from './types/events.js';
 import type { ActionReturn } from 'svelte/action';
 import { safeOnMount } from './utils/lifecycle.js';
 import { effect } from './utils/effect.js';
@@ -25,6 +25,18 @@ type HoverActionReturn = ActionReturn<
 		'on:hoverend'?: (e: CustomEvent<HoverEvent>) => void;
 	}
 >;
+
+class HoverEvent implements IHoverEvent {
+	type: 'hoverstart' | 'hoverend';
+	pointerType: 'mouse' | 'pen';
+	target: Element;
+
+	constructor(type: IHoverEvent['type'], pointerType: 'mouse' | 'pen', originalEvent: Event) {
+		this.type = type;
+		this.pointerType = pointerType;
+		this.target = originalEvent.currentTarget as Element;
+	}
+}
 
 export type HoverResult = {
 	/** Whether the element is currently being hovered */
@@ -102,6 +114,9 @@ export function createHover(config?: HoverConfig): HoverResult {
 	const isDisabled = writable(isDisabledProp);
 	const isHovered = writable(false);
 
+	// the element the action is attached to
+	let nodeEl: HTMLElement | SVGElement | null = null;
+
 	type HoverState = {
 		isHovered: boolean;
 		ignoreEmulatedMouseEvents: boolean;
@@ -118,14 +133,18 @@ export function createHover(config?: HoverConfig): HoverResult {
 
 	safeOnMount(setupGlobalTouchEvents);
 
+	function dispatchEvent(hoverEvent: HoverEvent) {
+		nodeEl?.dispatchEvent(new CustomEvent<HoverEvent>(hoverEvent.type, { detail: hoverEvent }));
+	}
+
 	function onDisabled() {
 		state.update((curr) => ({ ...curr, pointerType: '', target: null, isHovered: false }));
 	}
 
-	function triggerHoverStart(event: MouseOrPointerEvent, pointerType: HoverPointerType) {
+	function triggerHoverStart(originalEvent: MouseOrPointerEvent, pointerType: HoverPointerType) {
 		state.update((curr) => ({ ...curr, pointerType: pointerType ?? undefined }));
 
-		const target = event.currentTarget;
+		const target = originalEvent.currentTarget;
 		if (!isHTMLorSVGElement(target)) return;
 		const $isDisabled = get(isDisabled);
 		const $state = get(state);
@@ -134,38 +153,42 @@ export function createHover(config?: HoverConfig): HoverResult {
 			$isDisabled ||
 			pointerType === 'touch' ||
 			$state.isHovered ||
-			!target.contains(event.target as Element)
+			!target.contains(originalEvent.target as Element)
 		) {
 			return;
 		}
 
 		state.update((curr) => ({ ...curr, isHovered: true, target }));
 
+		const event = new HoverEvent('hoverstart', pointerType, originalEvent);
+
 		onHoverStart?.({
 			type: 'hoverstart',
 			target,
 			pointerType
 		});
+		dispatchEvent(event);
 
 		onHoverChange?.(true);
 
 		isHovered.set(true);
 	}
 
-	function triggerHoverEnd(event: MouseOrPointerEvent, pointerType: HoverPointerType) {
+	function triggerHoverEnd(originalEvent: MouseOrPointerEvent, pointerType: HoverPointerType) {
 		state.update((curr) => ({ ...curr, pointerType: '', target: null }));
 		const $state = get(state);
-		const currentTarget = event.currentTarget;
+		const currentTarget = originalEvent.currentTarget;
 
 		if (pointerType === 'touch' || !$state.isHovered || !isElement(currentTarget)) return;
 
 		state.update((curr) => ({ ...curr, isHovered: false }));
-
+		const event = new HoverEvent('hoverend', pointerType, originalEvent);
 		onHoverEnd?.({
 			type: 'hoverend',
 			target: currentTarget,
 			pointerType
 		});
+		dispatchEvent(event);
 
 		onHoverChange?.(false);
 
@@ -232,6 +255,7 @@ export function createHover(config?: HoverConfig): HoverResult {
 
 	function hoverAction(node: HTMLElement | SVGElement) {
 		let unsubHandlers = noop;
+		nodeEl = node;
 
 		if (typeof PointerEvent !== 'undefined') {
 			const handlers = getPointerHandlers();
