@@ -112,7 +112,7 @@ type PressConfig = PressHandlers {
 
 The `PressConfig` object also includes handlers for all the different `PressHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:press*` events dispatched by the element with the `pressAction`.
 
-Be aware that event if you use these handlers, the custom `on:press*` events will still be dispatched, so be sure you aren't handling the same event twice.
+Be aware that event if you use these handlers, the custom `on:press*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `PressHandlers`.
 
 ```ts
 type PressHandlers = {
@@ -160,7 +160,7 @@ type PressResult = {
 
 ### Custom Events
 
-When you apply the `pressAction` to an element, it will dispatch custom `on:press*` events. You can use these and/or the `PressHandlers` to handle the various press events.
+When you apply the `pressAction` to an element, it will dispatch custom `on:press*` events. You can use these or the `PressHandlers` to handle the various press events.
 
 ```ts
 type PressActionReturn = ActionReturn<
@@ -229,6 +229,183 @@ interface PressEvent {
 }
 ```
 
+## Long Press Interaction
+
+The `hover` interaction provides an API for consistent long press behavior across all browsers and devices, with support for a custom time threshold and accessible description.
+
+#### Basic Usage
+
+```svelte
+<script lang="ts">
+	import { createLongPress } from 'svelte-interactions';
+
+	const { longPressAction } = createLongPress();
+</script>
+
+<button
+	use:longPressAction
+	on:longpress={(e) => {
+		console.log('you just long pressed a button!', e);
+	}}
+>
+	Long Press Me
+</button>
+```
+
+### createLongPress
+
+Creates a new `longpress` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
+
+```svelte
+<script lang="ts">
+	import { createLongPress } from 'svelte-interactions';
+
+	const { longPressAction: longPressOne } = createLongPress();
+	const { longPressAction: longPressTwo } = createLongPress();
+</script>
+
+<button use:longPressOne on:longpress> Button One </button>
+<button use:longPressTwo on:longpress> Button Two </button>
+```
+
+#### LongPressConfig
+
+`createLongPress` takes in an optional `LongPressConfig` object, which can be used to customize the interaction.
+
+```ts
+import { createLongPress } from 'svelte-interactions';
+
+const { pressLongAction } = createPress({ isDisabled: true, threshold: 1000 });
+```
+
+```ts
+type LongPressConfig = LongPressHandlers & {
+	/**
+	 * Whether the long press events should be disabled
+	 */
+	isDisabled?: boolean;
+
+	/**
+	 * The amount of time (in milliseconds) to wait before
+	 * triggering a long press event.
+	 */
+	threshold?: number;
+
+	/**
+	 * A description for assistive techology users indicating that a
+	 * long press action is available, e.g. "Long press to open menu".
+	 */
+	accessibilityDescription?: string;
+};
+```
+
+The `LongPressConfig` object also includes handlers for all the different `LongPressHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:longpress*` events dispatched by the element with the `longPressAction`.
+
+Be aware that event if you use these handlers, the custom `on:longpress*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `LongPressHandlers`.
+
+```ts
+export type LongPressHandlers = {
+	/**
+	 * Handler that is called when a long press interaction starts.
+	 */
+	onLongPressStart?: (e: LongPressEvent) => void;
+
+	/**
+	 * Handler that is called when a long press interaction ends, either
+	 * over the target or when the pointer leaves the target.
+	 */
+	onLongPressEnd?: (e: LongPressEvent) => void;
+
+	/**
+	 * Handler that is called when the threshold time is met while
+	 * the press is over the target.
+	 */
+	onLongPress?: (e: LongPressEvent) => void;
+};
+```
+
+### LongPressResult
+
+The `createLongPress` function returns a `LongPressResult` object, which contains the `longPressAction` action, and the `description` state. More returned properties may be added in the future if needed.
+
+```ts
+type LongPressResult = {
+	/**
+	 * A Svelte action which handles applying the event listeners
+	 * and dispatching events to the element
+	 */
+	longPressAction: (node: HTMLElement | SVGElement) => LongPressActionReturn;
+
+	/**
+	 * A writable store to manage the accessible description for the long
+	 * press action. It's initially populated with the value passed to the
+	 * `accessibilityDescription` config option, but can be updated at any
+	 * time by calling `description.set()`, and the new description will
+	 * reflect in the DOM.
+	 */
+	accessibilityDescription: Writable<string | undefined>;
+};
+```
+
+### Custom Events
+
+When you apply the `longPressAction` to an element, it will dispatch custom `on:longpress*` events for events you aren't handling via the `LongPressConfig` props. You can use these or the `LongPressHandlers` to handle the various `longpress` events.
+
+```ts
+type LongPressActionReturn = ActionReturn<
+	undefined,
+	{
+		/**
+		 * Dispatched when the threshold time is met while
+		 * the press is over the target.
+		 */
+		'on:longpress'?: (e: CustomEvent<LongPressEvent>) => void;
+
+		/**
+		 * Dispatched when a long press interaction starts.
+		 */
+		'on:longpressstart'?: (e: CustomEvent<LongPressEvent>) => void;
+
+		/**
+		 * Dispatched when a long press interaction ends, either
+		 * over the target or when the pointer leaves the target.
+		 */
+		'on:longpressend'?: (e: CustomEvent<LongPressEvent>) => void;
+	}
+>;
+```
+
+#### PressEvent
+
+This is the event object dispatched by the custom `on:press*` events, and is also passed to the `PressHandlers` should you choose to use them.
+
+```ts
+type PointerType = 'mouse' | 'pen' | 'touch' | 'keyboard' | 'virtual';
+
+interface PressEvent {
+	/** The type of longpress event being fired. */
+	type: 'longpressstart' | 'longpressend' | 'longpress';
+
+	/** The pointer type that triggered the press event. */
+	pointerType: PointerType;
+
+	/** The target element of the press event. */
+	target: Element;
+
+	/** Whether the shift keyboard modifier was held during the press event. */
+	shiftKey: boolean;
+
+	/** Whether the ctrl keyboard modifier was held during the press event. */
+	ctrlKey: boolean;
+
+	/** Whether the meta keyboard modifier was held during the press event. */
+	metaKey: boolean;
+
+	/** Whether the alt keyboard modifier was held during the press event. */
+	altKey: boolean;
+}
+```
+
 ## Hover Interaction
 
 The `hover` interaction provides an API for consistent hover behavior across all browsers and devices, ignoring emulated mouse events on touch devices.
@@ -292,7 +469,7 @@ type HoverConfig = HoverHandlers & {
 
 The `HoverConfig` object also includes handlers for all the different `HoverHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:hover*` events dispatched by the element with the `hoverAction`.
 
-Be aware that even if you use these handlers, the custom `on:hover*` events will still be dispatched, so be sure you aren't handling the same event twice.
+Be aware that event if you use these handlers, the custom `on:hover*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `HoverHandlers`.
 
 ```ts
 type HoverHandlers = {
@@ -334,7 +511,7 @@ export type HoverResult = {
 
 ### Custom Events
 
-When you apply the `hoverAction` to an element, it will dispatch custom `on:hover*` events. You can use these and/or the `HoverHandlers` to handle the various hover events.
+When you apply the `hoverAction` to an element, it will dispatch custom `on:hover*` events. You can use these or the `HoverHandlers` to handle the various hover events.
 
 ```ts
 type HoverActionReturn = ActionReturn<

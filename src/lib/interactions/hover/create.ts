@@ -156,13 +156,15 @@ export function createHover(config?: HoverConfig): HoverResult {
 
 		const event = new HoverEvent('hoverstart', pointerType, originalEvent);
 
-		onHoverStart?.({
-			type: 'hoverstart',
-			target,
-			pointerType
-		});
-
-		dispatchHoverEvent(event);
+		if (onHoverStart) {
+			onHoverStart({
+				type: 'hoverstart',
+				target,
+				pointerType
+			});
+		} else {
+			dispatchHoverEvent(event);
+		}
 
 		onHoverChange?.(true);
 
@@ -178,12 +180,15 @@ export function createHover(config?: HoverConfig): HoverResult {
 
 		state.update((curr) => ({ ...curr, isHovered: false }));
 		const event = new HoverEvent('hoverend', pointerType, originalEvent);
-		onHoverEnd?.({
-			type: 'hoverend',
-			target: currentTarget,
-			pointerType
-		});
-		dispatchHoverEvent(event);
+		if (onHoverEnd) {
+			onHoverEnd({
+				type: 'hoverend',
+				target: currentTarget,
+				pointerType
+			});
+		} else {
+			dispatchHoverEvent(event);
+		}
 
 		onHoverChange?.(false);
 

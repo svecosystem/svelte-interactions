@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { createHover, createPress } from '$lib/index.js';
+	import { createHover, createLongPress, createPress } from '$lib/index.js';
 
 	const { pressAction } = createPress();
 	const { hoverAction } = createHover();
+	const { longPressAction } = createLongPress();
 </script>
 
 <button
 	use:pressAction
+	use:longPressAction
 	use:hoverAction
 	on:press={() => {
 		console.log('press');
@@ -25,6 +27,15 @@
 	}}
 	on:hoverend={() => {
 		console.log('hoverend');
+	}}
+	on:longpress={() => {
+		console.log('longpress');
+	}}
+	on:longpressstart={() => {
+		console.log('longpressstart');
+	}}
+	on:longpressend={() => {
+		console.log('longpressend');
 	}}
 >
 	Hello World

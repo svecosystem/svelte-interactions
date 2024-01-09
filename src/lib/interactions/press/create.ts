@@ -7,8 +7,8 @@ import type { ActionReturn } from 'svelte/action';
 // prettier-ignore
 import { disableTextSelection, restoreTextSelection, focusWithoutScrolling, getOwnerDocument, getOwnerWindow, isMac, isVirtualClick, isVirtualPointerEvent, openLink, createGlobalListeners, toWritableStores, executeCallbacks, noop, addEventListener, isHTMLorSVGElement } from '$lib/utils/index.js';
 
-import type { PressEvent as IPressEvent, PointerType, PressHandlers } from './events.js';
-import type { FocusableElement } from '$lib/types/dom.js';
+import type { PressEvent as IPressEvent, PressHandlers } from './events.js';
+import type { FocusableElement, EventBase, PointerType } from '$lib/types/index.js';
 
 export type PressConfig = PressHandlers & {
 	/** Whether the target is in a controlled press state (e.g. an overlay it triggers is open). */
@@ -41,14 +41,6 @@ type PressState = {
 	pointerType: PointerType | null;
 	userSelect?: string;
 	metaKeyEvents?: Map<string, KeyboardEvent>;
-};
-
-type EventBase = {
-	currentTarget: EventTarget | null;
-	shiftKey: boolean;
-	ctrlKey: boolean;
-	metaKey: boolean;
-	altKey: boolean;
 };
 
 type PressActionReturn = ActionReturn<
@@ -158,8 +150,11 @@ export function createPress(config?: PressConfig): PressResult {
 		state.update((curr) => ({ ...curr, isTriggeringEvent: true }));
 
 		const event = new PressEvent('pressstart', pointerType, originalEvent);
-		onPressStart?.(event);
-		dispatchPressEvent(event);
+		if (onPressStart) {
+			onPressStart(event);
+		} else {
+			dispatchPressEvent(event);
+		}
 		shouldStopPropagation = event.shouldStopPropagation;
 
 		onPressChange?.(true);
@@ -189,8 +184,11 @@ export function createPress(config?: PressConfig): PressResult {
 		let shouldStopPropagation = true;
 
 		const event = new PressEvent('pressend', pointerType, originalEvent);
-		onPressEnd?.(event);
-		dispatchPressEvent(event);
+		if (onPressEnd) {
+			onPressEnd(event);
+		} else {
+			dispatchPressEvent(event);
+		}
 		shouldStopPropagation = event.shouldStopPropagation;
 
 		onPressChange?.(false);
@@ -199,8 +197,11 @@ export function createPress(config?: PressConfig): PressResult {
 		const $isDisabled = get(opts.isDisabled);
 		if (wasPressed && !$isDisabled) {
 			const event = new PressEvent('press', pointerType, originalEvent);
-			onPress?.(event);
-			dispatchPressEvent(event);
+			if (onPress) {
+				onPress(event);
+			} else {
+				dispatchPressEvent(event);
+			}
 			shouldStopPropagation &&= event.shouldStopPropagation;
 		}
 
@@ -219,8 +220,12 @@ export function createPress(config?: PressConfig): PressResult {
 
 		state.update((curr) => ({ ...curr, isTriggeringEvent: true }));
 		const event = new PressEvent('pressup', pointerType, originalEvent);
-		onPressUp?.(event);
-		dispatchPressEvent(event);
+
+		if (onPressUp) {
+			onPressUp(event);
+		} else {
+			dispatchPressEvent(event);
+		}
 		state.update((curr) => ({ ...curr, isTriggeringEvent: false }));
 		return event.shouldStopPropagation;
 	}

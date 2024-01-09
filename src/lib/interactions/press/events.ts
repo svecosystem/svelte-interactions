@@ -1,7 +1,8 @@
 // Portions of the code in this file are based on code from Adobe.
 // Original licensing for the following can be found in the NOTICE.txt
 // file in the root directory of this source tree.
-export type PointerType = 'mouse' | 'pen' | 'touch' | 'keyboard' | 'virtual';
+
+import type { PointerType } from '$lib/types/events.js';
 
 export interface PressEvent {
 	/** The type of press event being fired. */
