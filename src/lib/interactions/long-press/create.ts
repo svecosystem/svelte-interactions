@@ -5,7 +5,7 @@ import { createPress, type PressEvent } from '$lib/interactions/press/index.js';
 import { createGlobalListeners } from '$lib/utils/globalListeners.js';
 import { effect } from '$lib/utils/effect.js';
 import { createDescription } from '$lib/utils/description.js';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 
 export type LongPressConfig = LongPressHandlers & {
 	/**
@@ -70,6 +70,15 @@ export type LongPressResult = {
 	 * and dispatching events to the element
 	 */
 	longPressAction: (node: HTMLElement | SVGElement) => LongPressActionReturn;
+
+	/**
+	 * A writable store to manage the accessible description for the long
+	 * press action. It's initially populated with the value passed to the
+	 * `accessibilityDescription` config option, but can be updated at any
+	 * time by calling `description.set()`, and the new description will
+	 * reflect in the DOM.
+	 */
+	accessibilityDescription: Writable<string | undefined>;
 };
 
 const DEFAULT_THRESHOLD = 500;
@@ -79,7 +88,7 @@ const DEFAULT_THRESHOLD = 500;
  * Supports a customizable time threshold,accessibility description,
  * and normalizes behavior across browsers and devices.
  */
-export function createLongPress(config?: LongPressConfig) {
+export function createLongPress(config?: LongPressConfig): LongPressResult {
 	const defaults = {
 		isDisabled: false,
 		threshold: DEFAULT_THRESHOLD
@@ -90,7 +99,7 @@ export function createLongPress(config?: LongPressConfig) {
 		onLongPressStart,
 		isDisabled,
 		threshold,
-		accessibilityDescription
+		accessibilityDescription: accessibilityDescriptionProp
 	} = {
 		...defaults,
 		...config
@@ -100,7 +109,7 @@ export function createLongPress(config?: LongPressConfig) {
 	let nodeEl: HTMLElement | SVGElement | null = null;
 
 	const { addGlobalListener, removeGlobalListener } = createGlobalListeners();
-	const description = writable(accessibilityDescription);
+	const accessibilityDescription = writable(accessibilityDescriptionProp);
 
 	function dispatchLongPressEvent(longPressEvent: LongPressEvent) {
 		nodeEl?.dispatchEvent(
@@ -164,7 +173,7 @@ export function createLongPress(config?: LongPressConfig) {
 		}
 	});
 
-	const ariaDescribedBy = createDescription(description);
+	const ariaDescribedBy = createDescription(accessibilityDescription);
 
 	function longPressAction(node: HTMLElement | SVGElement): LongPressActionReturn {
 		nodeEl = node;
@@ -186,6 +195,6 @@ export function createLongPress(config?: LongPressConfig) {
 
 	return {
 		longPressAction,
-		description
+		accessibilityDescription
 	};
 }
