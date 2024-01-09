@@ -3,7 +3,7 @@
 // file in the root directory of this source tree.
 
 import { writable, type Readable, get } from 'svelte/store';
-import type { HoverEvent as IHoverEvent, HoverEvents } from './types/events.js';
+import type { HoverEvent as IHoverEvent, HoverHandlers } from './types/events.js';
 import type { ActionReturn } from 'svelte/action';
 import { safeOnMount } from './utils/lifecycle.js';
 import { effect } from './utils/effect.js';
@@ -11,7 +11,7 @@ import { isElement, isHTMLorSVGElement } from './utils/isElement.js';
 import { executeCallbacks, noop } from './utils/callbacks.js';
 import { addEventListener } from './utils/addEventListener.js';
 
-export type HoverConfig = HoverEvents & {
+export type HoverConfig = HoverHandlers & {
 	/** Whether the hover events should be disabled */
 	isDisabled?: boolean;
 };

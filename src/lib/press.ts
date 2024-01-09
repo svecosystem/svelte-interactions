@@ -74,7 +74,6 @@ export type PressResult = {
 	/** Whether the target is currently pressed. */
 	isPressed: Readable<boolean>;
 	/** A Svelte Action which handles applying the event listeners to the element. */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	pressAction: (node: HTMLElement | SVGElement) => PressActionReturn;
 };
 

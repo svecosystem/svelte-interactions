@@ -54,7 +54,7 @@ export interface HoverEvent {
 	target: Element;
 }
 
-export type HoverEvents = {
+export type HoverHandlers = {
 	/** Handler that is called when a hover interaction starts. */
 	onHoverStart?: (e: HoverEvent) => void;
 	/** Handler that is called when a hover interaction ends. */
