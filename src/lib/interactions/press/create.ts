@@ -150,8 +150,11 @@ export function createPress(config?: PressConfig): PressResult {
 		state.update((curr) => ({ ...curr, isTriggeringEvent: true }));
 
 		const event = new PressEvent('pressstart', pointerType, originalEvent);
-		onPressStart?.(event);
-		dispatchPressEvent(event);
+		if (onPressStart) {
+			onPressStart(event);
+		} else {
+			dispatchPressEvent(event);
+		}
 		shouldStopPropagation = event.shouldStopPropagation;
 
 		onPressChange?.(true);
@@ -181,8 +184,11 @@ export function createPress(config?: PressConfig): PressResult {
 		let shouldStopPropagation = true;
 
 		const event = new PressEvent('pressend', pointerType, originalEvent);
-		onPressEnd?.(event);
-		dispatchPressEvent(event);
+		if (onPressEnd) {
+			onPressEnd(event);
+		} else {
+			dispatchPressEvent(event);
+		}
 		shouldStopPropagation = event.shouldStopPropagation;
 
 		onPressChange?.(false);
@@ -191,8 +197,11 @@ export function createPress(config?: PressConfig): PressResult {
 		const $isDisabled = get(opts.isDisabled);
 		if (wasPressed && !$isDisabled) {
 			const event = new PressEvent('press', pointerType, originalEvent);
-			onPress?.(event);
-			dispatchPressEvent(event);
+			if (onPress) {
+				onPress(event);
+			} else {
+				dispatchPressEvent(event);
+			}
 			shouldStopPropagation &&= event.shouldStopPropagation;
 		}
 
@@ -211,8 +220,12 @@ export function createPress(config?: PressConfig): PressResult {
 
 		state.update((curr) => ({ ...curr, isTriggeringEvent: true }));
 		const event = new PressEvent('pressup', pointerType, originalEvent);
-		onPressUp?.(event);
-		dispatchPressEvent(event);
+
+		if (onPressUp) {
+			onPressUp(event);
+		} else {
+			dispatchPressEvent(event);
+		}
 		state.update((curr) => ({ ...curr, isTriggeringEvent: false }));
 		return event.shouldStopPropagation;
 	}

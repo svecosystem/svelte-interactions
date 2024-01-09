@@ -112,7 +112,7 @@ type PressConfig = PressHandlers {
 
 The `PressConfig` object also includes handlers for all the different `PressHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:press*` events dispatched by the element with the `pressAction`.
 
-Be aware that event if you use these handlers, the custom `on:press*` events will still be dispatched, so be sure you aren't handling the same event twice.
+Be aware that event if you use these handlers, the custom `on:press*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `PressHandlers`.
 
 ```ts
 type PressHandlers = {
@@ -292,7 +292,7 @@ type HoverConfig = HoverHandlers & {
 
 The `HoverConfig` object also includes handlers for all the different `HoverHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:hover*` events dispatched by the element with the `hoverAction`.
 
-Be aware that even if you use these handlers, the custom `on:hover*` events will still be dispatched, so be sure you aren't handling the same event twice.
+Be aware that event if you use these handlers, the custom `on:hover*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `HoverHandlers`.
 
 ```ts
 type HoverHandlers = {

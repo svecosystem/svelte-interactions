@@ -166,7 +166,7 @@ export function createLongPress(config?: LongPressConfig) {
 
 	const ariaDescribedBy = createDescription(description);
 
-	function longPressAction(node: HTMLElement | SVGElement) {
+	function longPressAction(node: HTMLElement | SVGElement): LongPressActionReturn {
 		nodeEl = node;
 
 		const unsub = effect([ariaDescribedBy], ([$ariaDescribedBy]) => {
