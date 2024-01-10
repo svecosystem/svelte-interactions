@@ -1,5 +1,11 @@
 # svelte-interactions
 
+## 0.2.0
+
+### Minor Changes
+
+- feat: `move` ([#5](https://github.com/svecosystem/svelte-interactions/pull/5))
+
 ## 0.1.0
 
 ### Minor Changes
