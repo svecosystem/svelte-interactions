@@ -46,10 +46,11 @@ No more having to wrangle all those event handlers yourself! Just and use the `p
 </button>
 ```
 
-
 <details>
     <summary>
-        <h3>`createPress`</h3>
+        <div>
+            `createPress`
+        </div>
     </summary>
 
 Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
@@ -67,9 +68,10 @@ Creates a new `press` interaction instance. Each element should have its own ins
 ```
 
 </details>
+
 <details>
     <summary>
-        <h3>PressConfig</h3>
+        <div>PressConfig</div>
     </summary>
 
 `createPress` takes in an optional `PressConfig` object, which can be used to customize the interaction.
@@ -161,9 +163,10 @@ type PressHandlers = {
 ```
 
 </details>
+
 <details>
     <summary>
-        <h3>PressResult</h3>
+        <div>PressResult</div>
     </summary>
 
 The `createPress` function returns a `PressResult` object, which contains the `pressAction` action, and the `isPressed` state. More returned properties may be added in the future if needed.
@@ -178,9 +181,10 @@ type PressResult = {
 ```
 
 </details>
+
 <details>
     <summary>
-        <h3>CustomEvent</h3>
+        <div>CustomEvent</div>
     </summary>
 
 When you apply the `pressAction` to an element, it will dispatch custom `on:press*` events. You can use these or the `PressHandlers` to handle the various press events.
@@ -215,9 +219,10 @@ type PressActionReturn = ActionReturn<
 ```
 
 </details>
+
 <details>
     <summary>
-        <h3>PressEvent</h3>
+        <div>PressEvent</div>
     </summary>
 
 This is the event object dispatched by the custom `on:press*` events, and is also passed to the `PressHandlers` should you choose to use them.
@@ -283,7 +288,7 @@ The `hover` interaction provides an API for consistent long press behavior acros
 
 <details>
     <summary>
-        <h3>`createLongPress`</h3>
+        <div>`createLongPress`</div>
     </summary>
 
 Creates a new `longpress` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
@@ -304,7 +309,7 @@ Creates a new `longpress` interaction instance. Each element should have its own
 
 <details>
     <summary>
-        <h3>LongPressConfig</h3>
+        <div>LongPressConfig</div>
     </summary>
 
 `createLongPress` takes in an optional `LongPressConfig` object, which can be used to customize the interaction.
@@ -365,7 +370,7 @@ export type LongPressHandlers = {
 
 <details>
     <summary>
-        <h3>LongPressResult</h3>
+        <div>LongPressResult</div>
     </summary>
 
 The `createLongPress` function returns a `LongPressResult` object, which contains the `longPressAction` action, and the `description` state. More returned properties may be added in the future if needed.
@@ -393,7 +398,7 @@ type LongPressResult = {
 
 <details>
     <summary>
-        <h3>Custom Events</h3>
+        <div>Custom Events</div>
     </summary>
 
 When you apply the `longPressAction` to an element, it will dispatch custom `on:longpress*` events for events you aren't handling via the `LongPressConfig` props. You can use these or the `LongPressHandlers` to handle the various `longpress` events.
@@ -426,7 +431,7 @@ type LongPressActionReturn = ActionReturn<
 
 <details>
     <summary>
-        <h3>PressEvent</h3>
+        <div>PressEvent</div>
     </summary>
 
 This is the event object dispatched by the custom `on:press*` events, and is also passed to the `PressHandlers` should you choose to use them.
@@ -488,7 +493,7 @@ The `hover` interaction provides an API for consistent hover behavior across all
 
 <details>
     <summary>
-        <h3>`createHover`</h3>
+        <div>`createHover`</div>
     </summary>
 
 Creates a new `hover` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple elements you wanted to apply hover state to on a page:
@@ -509,7 +514,7 @@ Creates a new `hover` interaction instance. Each element should have its own ins
 
 <details>
     <summary>
-        <h3>HoverConfig</h3>
+        <div>HoverConfig</div>
     </summary>
 
 The `createHover` function takes in an optional `HoverConfig` object, which can be used to customize the interaction.
@@ -556,7 +561,7 @@ type HoverHandlers = {
 
 <details>
     <summary>
-        <h3>HoverResult</h3>
+        <div>HoverResult</div>
     </summary>
 
 The `createHover` function returns a `HoverResult` object, which contains the `hoverAction` action, and the `isHovering` state. More returned properties may be added in the future if needed.
@@ -580,7 +585,7 @@ export type HoverResult = {
 
 <details>
     <summary>
-        <h3>Custom Events</h3>
+        <div>Custom Events</div>
     </summary>
 
 When you apply the `hoverAction` to an element, it will dispatch custom `on:hover*` events. You can use these or the `HoverHandlers` to handle the various hover events.
@@ -606,7 +611,7 @@ type HoverActionReturn = ActionReturn<
 
 <details>
     <summary>
-        <h3>HoverEvent</h3>
+        <div>HoverEvent</divn>
     </summary>
 
 This is the event object dispatched by the custom `on:hover*` events, and is also passed to the `HoverHandlers` should you choose to use them.
@@ -626,7 +631,7 @@ interface HoverEvent {
 
 ## Move Interaction
 
-The `move` interaction provides an API for consistent move behavior across all browsers and devices, ignoring emulated mouse events on touch devices.
+Handles `move` interactions across mouse, touch, and keyboard, including dragging with the mouse or touch, and using the arrow keys. Normalizes behavior across browsers and platforms, and ignores emulated mouse events on touch devices.
 
 #### Basic Usage
 
@@ -650,3 +655,23 @@ The `move` interaction provides an API for consistent move behavior across all b
 </button>
 ```
 
+<details>
+    <summary>
+        <div>
+            `createMove`
+        </div>
+    </summary>
+
+Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
+
+```svelte
+<script lang="ts">
+	import { createMove } from 'svelte-interactions';
+
+	const { moveAction } = createMove();
+</script>
+
+<div use:moveAction on:move> Moveable Area </div>
+```
+
+</details>
