@@ -48,7 +48,7 @@ No more having to wrangle all those event handlers yourself! Just and use the `p
 
 <details>
     <summary>
-### createPress
+        <h3>createPress</h3>
     </summary>
 
 Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
