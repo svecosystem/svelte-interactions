@@ -46,10 +46,8 @@ No more having to wrangle all those event handlers yourself! Just and use the `p
 </button>
 ```
 
-<details>
-    <summary>
-        <h3>createPress</h3>
-    </summary>
+
+### createPress
 
 Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
 
@@ -65,9 +63,10 @@ Creates a new `press` interaction instance. Each element should have its own ins
 <button use:pressTwo on:press> Button Two </button>
 ```
 
-</details>
-
-#### PressConfig
+<details>
+    <summary>
+        <h3>PressConfig</h3>
+    </summary>
 
 `createPress` takes in an optional `PressConfig` object, which can be used to customize the interaction.
 
@@ -157,7 +156,12 @@ type PressHandlers = {
 };
 ```
 
-### PressResult
+</details>
+
+<details>
+    <summary>
+        <h3>PressResult</h3>
+    </summary>
 
 The `createPress` function returns a `PressResult` object, which contains the `pressAction` action, and the `isPressed` state. More returned properties may be added in the future if needed.
 
@@ -170,7 +174,12 @@ type PressResult = {
 };
 ```
 
-### Custom Events
+</details>
+
+<details>
+    <summary>
+        <h3>CustomEvent</h3>
+    </summary>
 
 When you apply the `pressAction` to an element, it will dispatch custom `on:press*` events. You can use these or the `PressHandlers` to handle the various press events.
 
@@ -203,7 +212,12 @@ type PressActionReturn = ActionReturn<
 >;
 ```
 
-#### PressEvent
+</details>
+
+<details>
+    <summary>
+        <h3>PressEvent</h3>
+    </summary>
 
 This is the event object dispatched by the custom `on:press*` events, and is also passed to the `PressHandlers` should you choose to use them.
 
@@ -241,6 +255,8 @@ interface PressEvent {
 }
 ```
 
+</details>
+
 ## Long Press Interaction
 
 The `hover` interaction provides an API for consistent long press behavior across all browsers and devices, with support for a custom time threshold and accessible description.
@@ -264,7 +280,10 @@ The `hover` interaction provides an API for consistent long press behavior acros
 </button>
 ```
 
-### createLongPress
+<details>
+    <summary>
+        <h3>createLongPress</h3>
+    </summary>
 
 Creates a new `longpress` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
 
@@ -280,7 +299,12 @@ Creates a new `longpress` interaction instance. Each element should have its own
 <button use:longPressTwo on:longpress> Button Two </button>
 ```
 
-#### LongPressConfig
+</details>
+
+<details>
+    <summary>
+        <h3>LongPressConfig</h3>
+    </summary>
 
 `createLongPress` takes in an optional `LongPressConfig` object, which can be used to customize the interaction.
 
@@ -336,7 +360,12 @@ export type LongPressHandlers = {
 };
 ```
 
-### LongPressResult
+</details>
+
+<details>
+    <summary>
+        <h3>LongPressResult</h3>
+    </summary>
 
 The `createLongPress` function returns a `LongPressResult` object, which contains the `longPressAction` action, and the `description` state. More returned properties may be added in the future if needed.
 
@@ -359,7 +388,12 @@ type LongPressResult = {
 };
 ```
 
-### Custom Events
+</details>
+
+<details>
+    <summary>
+        <h3>Custom Events</h3>
+    </summary>
 
 When you apply the `longPressAction` to an element, it will dispatch custom `on:longpress*` events for events you aren't handling via the `LongPressConfig` props. You can use these or the `LongPressHandlers` to handle the various `longpress` events.
 
@@ -387,7 +421,12 @@ type LongPressActionReturn = ActionReturn<
 >;
 ```
 
-#### PressEvent
+</details>
+
+<details>
+    <summary>
+        <h3>PressEvent</h3>
+    </summary>
 
 This is the event object dispatched by the custom `on:press*` events, and is also passed to the `PressHandlers` should you choose to use them.
 
@@ -418,6 +457,8 @@ interface PressEvent {
 }
 ```
 
+</details>
+
 ## Hover Interaction
 
 The `hover` interaction provides an API for consistent hover behavior across all browsers and devices, ignoring emulated mouse events on touch devices.
@@ -444,7 +485,10 @@ The `hover` interaction provides an API for consistent hover behavior across all
 </button>
 ```
 
-### createHover
+<details>
+    <summary>
+        <h3>createHover</h3>
+    </summary>
 
 Creates a new `hover` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple elements you wanted to apply hover state to on a page:
 
@@ -460,7 +504,12 @@ Creates a new `hover` interaction instance. Each element should have its own ins
 <div use:hoverTwo on:hoverstart>Hoverable element two</div>
 ```
 
-#### HoverConfig
+</details>
+
+<details>
+    <summary>
+        <h3>HoverConfig</h3>
+    </summary>
 
 The `createHover` function takes in an optional `HoverConfig` object, which can be used to customize the interaction.
 
@@ -502,7 +551,12 @@ type HoverHandlers = {
 };
 ```
 
-### HoverResult
+</details>
+
+<details>
+    <summary>
+        <h3>HoverResult</h3>
+    </summary>
 
 The `createHover` function returns a `HoverResult` object, which contains the `hoverAction` action, and the `isHovering` state. More returned properties may be added in the future if needed.
 
@@ -521,7 +575,12 @@ export type HoverResult = {
 };
 ```
 
-### Custom Events
+</details>
+
+<details>
+    <summary>
+        <h3>Custom Events</h3>
+    </summary>
 
 When you apply the `hoverAction` to an element, it will dispatch custom `on:hover*` events. You can use these or the `HoverHandlers` to handle the various hover events.
 
@@ -542,7 +601,12 @@ type HoverActionReturn = ActionReturn<
 >;
 ```
 
-#### HoverEvent
+</details>
+
+<details>
+    <summary>
+        <h3>HoverEvent</h3>
+    </summary>
 
 This is the event object dispatched by the custom `on:hover*` events, and is also passed to the `HoverHandlers` should you choose to use them.
 
@@ -556,3 +620,5 @@ interface HoverEvent {
 	target: Element;
 }
 ```
+
+</details>
