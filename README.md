@@ -640,7 +640,7 @@ Handles `move` interactions across mouse, touch, and keyboard, including draggin
 	const { moveAction } = createMove();
 </script>
 
-<button
+<div
 	use:moveAction
 	on:movestart={(e) => {
 		console.log('you just started moving me!', e);
@@ -649,8 +649,8 @@ Handles `move` interactions across mouse, touch, and keyboard, including draggin
 		console.log('you just stopped moving me!', e);
 	}}
 >
-	Press Me
-</button>
+	Moveable Area
+</div>
 ```
 
 <details>
