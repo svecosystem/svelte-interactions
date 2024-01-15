@@ -17,9 +17,9 @@ npm install svelte-interactions
 ## Table of Contents
 
 - [Press Interaction](#press-interaction)
-- [Press Interaction](#press-interaction)
-- [Press Interaction](#press-interaction)
-- [Press Interaction](#press-interaction)
+- [Long Press Interaction](#long-press-interaction)
+- [Hover Interaction](#hover-interaction)
+- [Move Interaction](#move-interaction)
 
 ## Press Interaction
 
