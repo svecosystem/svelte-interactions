@@ -47,7 +47,10 @@ No more having to wrangle all those event handlers yourself! Just and use the `p
 ```
 
 
-### createPress
+<details>
+    <summary>
+        <h3>`createPress`</h3>
+    </summary>
 
 Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
 
@@ -63,6 +66,7 @@ Creates a new `press` interaction instance. Each element should have its own ins
 <button use:pressTwo on:press> Button Two </button>
 ```
 
+</details>
 <details>
     <summary>
         <h3>PressConfig</h3>
@@ -157,7 +161,6 @@ type PressHandlers = {
 ```
 
 </details>
-
 <details>
     <summary>
         <h3>PressResult</h3>
@@ -175,7 +178,6 @@ type PressResult = {
 ```
 
 </details>
-
 <details>
     <summary>
         <h3>CustomEvent</h3>
@@ -213,7 +215,6 @@ type PressActionReturn = ActionReturn<
 ```
 
 </details>
-
 <details>
     <summary>
         <h3>PressEvent</h3>
@@ -282,7 +283,7 @@ The `hover` interaction provides an API for consistent long press behavior acros
 
 <details>
     <summary>
-        <h3>createLongPress</h3>
+        <h3>`createLongPress`</h3>
     </summary>
 
 Creates a new `longpress` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
@@ -487,7 +488,7 @@ The `hover` interaction provides an API for consistent hover behavior across all
 
 <details>
     <summary>
-        <h3>createHover</h3>
+        <h3>`createHover`</h3>
     </summary>
 
 Creates a new `hover` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple elements you wanted to apply hover state to on a page:
@@ -622,3 +623,30 @@ interface HoverEvent {
 ```
 
 </details>
+
+## Move Interaction
+
+The `move` interaction provides an API for consistent move behavior across all browsers and devices, ignoring emulated mouse events on touch devices.
+
+#### Basic Usage
+
+```svelte
+<script lang="ts">
+	import { createMove } from 'svelte-interactions';
+
+	const { moveAction } = createMove();
+</script>
+
+<button
+	use:moveAction
+	on:movestart={(e) => {
+		console.log('you just started moving me!', e);
+	}}
+	on:moveend={(e) => {
+		console.log('you just stopped moving me!', e);
+	}}
+>
+	Press Me
+</button>
+```
+
