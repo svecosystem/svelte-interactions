@@ -14,6 +14,13 @@ While this project is still in its infancy, it'll be documented here. It will ev
 npm install svelte-interactions
 ```
 
+## Table of Contents
+
+- [Press Interaction](#press-interaction)
+- [Press Interaction](#press-interaction)
+- [Press Interaction](#press-interaction)
+- [Press Interaction](#press-interaction)
+
 ## Press Interaction
 
 The `press` interaction is used to implement buttons, links, and other pressable elements. It handles mouse, touch, and keyboard interactions, and ensures that the element is accessible to screen readers and keyboard users.
@@ -39,7 +46,10 @@ No more having to wrangle all those event handlers yourself! Just and use the `p
 </button>
 ```
 
+<details>
+    <summary>
 ### createPress
+    </summary>
 
 Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
 
@@ -54,6 +64,8 @@ Creates a new `press` interaction instance. Each element should have its own ins
 <button use:pressOne on:press> Button One </button>
 <button use:pressTwo on:press> Button Two </button>
 ```
+
+</details>
 
 #### PressConfig
 
