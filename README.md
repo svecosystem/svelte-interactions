@@ -667,7 +667,7 @@ Creates a new `press` interaction instance. Each element should have its own ins
 	const { moveAction } = createMove();
 </script>
 
-<div use:moveAction on:move> Moveable Area </div>
+<div use:moveAction on:move>Moveable Area</div>
 ```
 
 </details>
@@ -678,7 +678,7 @@ Creates a new `press` interaction instance. Each element should have its own ins
     </summary>
 
 ```ts
-export type MoveConfig = MoveHandlers & { }
+export type MoveConfig = MoveHandlers & {};
 ```
 
 The `MoveConfig` object also includes handlers for all the different `MoveHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:move*` events dispatched by the element with the `moveAction`.
@@ -701,7 +701,7 @@ export type MoveHandlers = {
 	 * Handler that is called when the element is moved.
 	 */
 	onMove?: (e: MoveMoveEvent) => void;
-}
+};
 ```
 
 </details>
