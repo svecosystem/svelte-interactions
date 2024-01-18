@@ -14,6 +14,13 @@ While this project is still in its infancy, it'll be documented here. It will ev
 npm install svelte-interactions
 ```
 
+## Table of Contents
+
+- [Press Interaction](#press-interaction)
+- [Long Press Interaction](#long-press-interaction)
+- [Hover Interaction](#hover-interaction)
+- [Move Interaction](#move-interaction)
+
 ## Press Interaction
 
 The `press` interaction is used to implement buttons, links, and other pressable elements. It handles mouse, touch, and keyboard interactions, and ensures that the element is accessible to screen readers and keyboard users.
@@ -39,7 +46,10 @@ No more having to wrangle all those event handlers yourself! Just and use the `p
 </button>
 ```
 
-### createPress
+<details>
+    <summary>
+        <span> createPress </span>
+    </summary>
 
 Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
 
@@ -55,7 +65,12 @@ Creates a new `press` interaction instance. Each element should have its own ins
 <button use:pressTwo on:press> Button Two </button>
 ```
 
-#### PressConfig
+</details>
+
+<details>
+    <summary>
+        <span>PressConfig</span>
+    </summary>
 
 `createPress` takes in an optional `PressConfig` object, which can be used to customize the interaction.
 
@@ -66,7 +81,7 @@ const { pressAction } = createPress({ isDisabled: true });
 ```
 
 ```ts
-type PressConfig = PressHandlers {
+type PressConfig = PressHandlers & {
 	/**
 	 * Whether the target is in a controlled press state
 	 * (e.g. an overlay it triggers is open).
@@ -112,7 +127,7 @@ type PressConfig = PressHandlers {
 
 The `PressConfig` object also includes handlers for all the different `PressHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:press*` events dispatched by the element with the `pressAction`.
 
-Be aware that event if you use these handlers, the custom `on:press*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `PressHandlers`.
+Be aware that if you use these handlers, the custom `on:press*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `PressHandlers`.
 
 ```ts
 type PressHandlers = {
@@ -145,7 +160,12 @@ type PressHandlers = {
 };
 ```
 
-### PressResult
+</details>
+
+<details>
+    <summary>
+        <span>PressResult</span>
+    </summary>
 
 The `createPress` function returns a `PressResult` object, which contains the `pressAction` action, and the `isPressed` state. More returned properties may be added in the future if needed.
 
@@ -158,7 +178,12 @@ type PressResult = {
 };
 ```
 
-### Custom Events
+</details>
+
+<details>
+    <summary>
+        <span>CustomEvent</span>
+    </summary>
 
 When you apply the `pressAction` to an element, it will dispatch custom `on:press*` events. You can use these or the `PressHandlers` to handle the various press events.
 
@@ -191,7 +216,12 @@ type PressActionReturn = ActionReturn<
 >;
 ```
 
-#### PressEvent
+</details>
+
+<details>
+    <summary>
+        <span>PressEvent</span>
+    </summary>
 
 This is the event object dispatched by the custom `on:press*` events, and is also passed to the `PressHandlers` should you choose to use them.
 
@@ -229,6 +259,8 @@ interface PressEvent {
 }
 ```
 
+</details>
+
 ## Long Press Interaction
 
 The `hover` interaction provides an API for consistent long press behavior across all browsers and devices, with support for a custom time threshold and accessible description.
@@ -252,7 +284,10 @@ The `hover` interaction provides an API for consistent long press behavior acros
 </button>
 ```
 
-### createLongPress
+<details>
+    <summary>
+        <span>createLongPress</span>
+    </summary>
 
 Creates a new `longpress` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
 
@@ -268,7 +303,12 @@ Creates a new `longpress` interaction instance. Each element should have its own
 <button use:longPressTwo on:longpress> Button Two </button>
 ```
 
-#### LongPressConfig
+</details>
+
+<details>
+    <summary>
+        <span>LongPressConfig</span>
+    </summary>
 
 `createLongPress` takes in an optional `LongPressConfig` object, which can be used to customize the interaction.
 
@@ -301,7 +341,7 @@ type LongPressConfig = LongPressHandlers & {
 
 The `LongPressConfig` object also includes handlers for all the different `LongPressHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:longpress*` events dispatched by the element with the `longPressAction`.
 
-Be aware that event if you use these handlers, the custom `on:longpress*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `LongPressHandlers`.
+Be aware that if you use these handlers, the custom `on:longpress*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `LongPressHandlers`.
 
 ```ts
 export type LongPressHandlers = {
@@ -324,7 +364,12 @@ export type LongPressHandlers = {
 };
 ```
 
-### LongPressResult
+</details>
+
+<details>
+    <summary>
+        <span>LongPressResult</span>
+    </summary>
 
 The `createLongPress` function returns a `LongPressResult` object, which contains the `longPressAction` action, and the `description` state. More returned properties may be added in the future if needed.
 
@@ -347,7 +392,12 @@ type LongPressResult = {
 };
 ```
 
-### Custom Events
+</details>
+
+<details>
+    <summary>
+        <span>Custom Events</span>
+    </summary>
 
 When you apply the `longPressAction` to an element, it will dispatch custom `on:longpress*` events for events you aren't handling via the `LongPressConfig` props. You can use these or the `LongPressHandlers` to handle the various `longpress` events.
 
@@ -375,7 +425,12 @@ type LongPressActionReturn = ActionReturn<
 >;
 ```
 
-#### PressEvent
+</details>
+
+<details>
+    <summary>
+        <span>PressEvent</span>
+    </summary>
 
 This is the event object dispatched by the custom `on:press*` events, and is also passed to the `PressHandlers` should you choose to use them.
 
@@ -406,6 +461,8 @@ interface PressEvent {
 }
 ```
 
+</details>
+
 ## Hover Interaction
 
 The `hover` interaction provides an API for consistent hover behavior across all browsers and devices, ignoring emulated mouse events on touch devices.
@@ -432,7 +489,10 @@ The `hover` interaction provides an API for consistent hover behavior across all
 </button>
 ```
 
-### createHover
+<details>
+    <summary>
+        <span>createHover</span>
+    </summary>
 
 Creates a new `hover` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple elements you wanted to apply hover state to on a page:
 
@@ -448,7 +508,12 @@ Creates a new `hover` interaction instance. Each element should have its own ins
 <div use:hoverTwo on:hoverstart>Hoverable element two</div>
 ```
 
-#### HoverConfig
+</details>
+
+<details>
+    <summary>
+        <span>HoverConfig</span>
+    </summary>
 
 The `createHover` function takes in an optional `HoverConfig` object, which can be used to customize the interaction.
 
@@ -469,7 +534,7 @@ type HoverConfig = HoverHandlers & {
 
 The `HoverConfig` object also includes handlers for all the different `HoverHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:hover*` events dispatched by the element with the `hoverAction`.
 
-Be aware that event if you use these handlers, the custom `on:hover*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `HoverHandlers`.
+Be aware that if you use these handlers, the custom `on:hover*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `HoverHandlers`.
 
 ```ts
 type HoverHandlers = {
@@ -490,7 +555,12 @@ type HoverHandlers = {
 };
 ```
 
-### HoverResult
+</details>
+
+<details>
+    <summary>
+        <span>HoverResult</span>
+    </summary>
 
 The `createHover` function returns a `HoverResult` object, which contains the `hoverAction` action, and the `isHovering` state. More returned properties may be added in the future if needed.
 
@@ -509,7 +579,12 @@ export type HoverResult = {
 };
 ```
 
-### Custom Events
+</details>
+
+<details>
+    <summary>
+        <span>Custom Events</span>
+    </summary>
 
 When you apply the `hoverAction` to an element, it will dispatch custom `on:hover*` events. You can use these or the `HoverHandlers` to handle the various hover events.
 
@@ -530,7 +605,12 @@ type HoverActionReturn = ActionReturn<
 >;
 ```
 
-#### HoverEvent
+</details>
+
+<details>
+    <summary>
+        <span>HoverEvent</span>
+    </summary>
 
 This is the event object dispatched by the custom `on:hover*` events, and is also passed to the `HoverHandlers` should you choose to use them.
 
@@ -544,3 +624,174 @@ interface HoverEvent {
 	target: Element;
 }
 ```
+
+</details>
+
+## Move Interaction
+
+Handles `move` interactions across mouse, touch, and keyboard, including dragging with the mouse or touch, and using the arrow keys. Normalizes behavior across browsers and platforms, and ignores emulated mouse events on touch devices.
+
+#### Basic Usage
+
+```svelte
+<script lang="ts">
+	import { createMove } from 'svelte-interactions';
+
+	const { moveAction } = createMove();
+</script>
+
+<div
+	use:moveAction
+	on:movestart={(e) => {
+		console.log('you just started moving me!', e);
+	}}
+	on:moveend={(e) => {
+		console.log('you just stopped moving me!', e);
+	}}
+>
+	Moveable Area
+</div>
+```
+
+<details>
+    <summary>
+        <span>createMove</span>
+    </summary>
+
+Creates a new `press` interaction instance. Each element should have its own instance, as it maintains state for a single element. For example, if you had multiple buttons on a page:
+
+```svelte
+<script lang="ts">
+	import { createMove } from 'svelte-interactions';
+
+	const { moveAction } = createMove();
+</script>
+
+<div use:moveAction on:move>Moveable Area</div>
+```
+
+</details>
+
+<details>
+    <summary>
+        <span>MoveConfig</span>
+    </summary>
+
+```ts
+export type MoveConfig = MoveHandlers & {};
+```
+
+The `MoveConfig` object also includes handlers for all the different `MoveHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:move*` events dispatched by the element with the `moveAction`.
+
+Be aware that if you use these handlers, the custom `on:move*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `MoveHandlers`.
+
+```ts
+export type MoveHandlers = {
+	/**
+	 * Handler that is called when a move interaction starts.
+	 */
+	onMoveStart?: (e: MoveStartEvent) => void;
+
+	/**
+	 * Handler that is called when a move interaction ends.
+	 */
+	onMoveEnd?: (e: MoveEndEvent) => void;
+
+	/**
+	 * Handler that is called when the element is moved.
+	 */
+	onMove?: (e: MoveMoveEvent) => void;
+};
+```
+
+</details>
+
+<details>
+    <summary>
+        <span>MoveResult</span>
+    </summary>
+
+The `createMove` function returns a `MoveResult` object, which contains the `moveAction` action. More returned properties may be added in the future if needed.
+
+```ts
+export type MoveResult = {
+	/**
+	 * A Svelte action which handles applying the event listeners
+	 * and dispatching events to the element
+	 */
+	moveAction: (node: HTMLElement | SVGElement) => MoveActionReturn;
+};
+```
+
+</details>
+
+<details>
+    <summary>
+        <span>Custom Events</span>
+    </summary>
+
+When you apply the `moveAction` to an element, it will dispatch custom `on:move*` events. You can use these or the `MoveHandlers` to handle the various move events.
+
+```ts
+type MoveActionReturn = ActionReturn<
+	undefined,
+	{
+		'on:move'?: (e: CustomEvent<MoveMoveEvent>) => void;
+		'on:movestart'?: (e: CustomEvent<MoveStartEvent>) => void;
+		'on:moveend'?: (e: CustomEvent<MoveEndEvent>) => void;
+	}
+>;
+```
+
+</details>
+
+<details>
+    <summary>
+        <span>MoveEvent</span>
+    </summary>
+
+This is the event object dispatched by the custom `on:move*` events, and is also passed to the `MoveHandlers` should you choose to use them.
+
+```ts
+export interface BaseMoveEvent {
+	/** The pointer type that triggered the move event. */
+	pointerType: PointerType;
+
+	/** Whether the shift keyboard modifier was held during the move event. */
+	shiftKey: boolean;
+
+	/** Whether the ctrl keyboard modifier was held during the move event. */
+	ctrlKey: boolean;
+
+	/** Whether the meta keyboard modifier was held during the move event. */
+	metaKey: boolean;
+
+	/** Whether the alt keyboard modifier was held during the move event. */
+	altKey: boolean;
+}
+
+export interface MoveStartEvent extends BaseMoveEvent {
+	/** The type of move event being fired. */
+	type: 'movestart';
+}
+
+export interface MoveMoveEvent extends BaseMoveEvent {
+	/** The type of move event being fired. */
+	type: 'move';
+
+	/** The amount moved in the X direction since the last event. */
+	deltaX: number;
+
+	/** The amount moved in the Y direction since the last event. */
+	deltaY: number;
+}
+
+export interface MoveEndEvent extends BaseMoveEvent {
+	/** The type of move event being fired. */
+	type: 'moveend';
+}
+
+export type MoveEvent = MoveStartEvent | MoveMoveEvent | MoveEndEvent;
+```
+
+</details>
