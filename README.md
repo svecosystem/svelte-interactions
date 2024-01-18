@@ -341,7 +341,7 @@ type LongPressConfig = LongPressHandlers & {
 
 The `LongPressConfig` object also includes handlers for all the different `LongPressHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:longpress*` events dispatched by the element with the `longPressAction`.
 
-Be aware that even if you use these handlers, the custom `on:longpress*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `LongPressHandlers`.
+Be aware that if you use these handlers, the custom `on:longpress*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `LongPressHandlers`.
 
 ```ts
 export type LongPressHandlers = {
@@ -534,7 +534,7 @@ type HoverConfig = HoverHandlers & {
 
 The `HoverConfig` object also includes handlers for all the different `HoverHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:hover*` events dispatched by the element with the `hoverAction`.
 
-Be aware that even if you use these handlers, the custom `on:hover*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `HoverHandlers`.
+Be aware that if you use these handlers, the custom `on:hover*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `HoverHandlers`.
 
 ```ts
 type HoverHandlers = {
@@ -683,7 +683,7 @@ export type MoveConfig = MoveHandlers & { }
 
 The `MoveConfig` object also includes handlers for all the different `MoveHandlers`. These are provided as a convenience, should you prefer to handle the events here rather than the custom `on:move*` events dispatched by the element with the `moveAction`.
 
-Be aware that even if you use these handlers, the custom `on:move*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `MoveHandlers`.
+Be aware that if you use these handlers, the custom `on:move*` events for whatever handlers you use will not be dispatched to the element. We only dispatch the events that aren't handled by the `MoveHandlers`.
 
 ```ts
 export type MoveHandlers = {
