@@ -481,7 +481,7 @@ The `hover` interaction provides an API for consistent hover behavior across all
 	on:hoverstart={(e) => {
 		console.log('you just hovered me!', e);
 	}}
-	on:hoverstart={(e) => {
+	on:hoverend={(e) => {
 		console.log('you just unhovered me!', e);
 	}}
 >
